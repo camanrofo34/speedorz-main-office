@@ -1,39 +1,45 @@
 package speedorz.crm.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "usuario")
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String nombreUsuario;
 
+    @Column(nullable = false)
     private String nombreCompleto;
 
+    @Column(nullable = false)
     private String contrasena;
 
+    @Column(nullable = false, unique = true)
     private String cedula;
 
+    @Column(nullable = false)
     private String direccion;
 
+    @Column(nullable = false)
     private String telefono;
 
+    @Column(nullable = false)
     private String rol;
 
+    @Column(nullable = false)
     private String estado;
 }

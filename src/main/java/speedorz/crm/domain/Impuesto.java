@@ -1,19 +1,21 @@
 package speedorz.crm.domain;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "vehiculo")
-public class Vehiculo {
+@ToString
+public class Impuesto {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,18 +23,13 @@ public class Vehiculo {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
-    private String marca;
-
-    @Column(nullable = false)
-    private String modelo;
-
     @Column(length = 500)
     private String descripcion;
 
     @Column(nullable = false)
-    private int stock;
+    private BigDecimal porcentaje;
 
-    @Column(nullable = false)
-    private double precio;
+    @ManyToMany(mappedBy = "impuestos")
+    @ToString.Exclude
+    private Set<OrdenCompra> ordenes = new HashSet<>();
 }

@@ -1,6 +1,5 @@
 package speedorz.crm.services;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import speedorz.crm.domain.Usuario;
 
 import java.util.List;
