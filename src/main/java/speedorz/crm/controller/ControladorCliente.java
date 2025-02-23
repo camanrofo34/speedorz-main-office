@@ -3,6 +3,7 @@ package speedorz.crm.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import speedorz.crm.domain.Cliente;
 import speedorz.crm.services.ServicioCliente;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
+@PreAuthorize("hasRole('ADMINCLIENTES')")
 public class ControladorCliente {
 
     private final ServicioCliente servicioCliente;
@@ -21,9 +23,9 @@ public class ControladorCliente {
     }
 
     @PostMapping
-    public ResponseEntity<Void> crearCliente(@RequestBody Cliente cliente) {
-        servicioCliente.crearCliente(cliente.getNombreLegal(), cliente.getNumeroIdentificacion(), cliente.getDireccion(), cliente.getTelefono());
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
+        Cliente respuesta = servicioCliente.crearCliente(cliente.getNombreLegal(), cliente.getNumeroIdentificacion(), cliente.getDireccion(), cliente.getTelefono());
+        return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 
     @GetMapping
