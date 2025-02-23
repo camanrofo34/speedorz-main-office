@@ -7,15 +7,16 @@ import java.util.List;
 
 public interface ServicioCliente {
 
-    public void crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono);
+    Cliente crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono);
 
-    public void actualizarCliente(Long id, String nombreLegal, String numeroIdentificacion, String direccion, String telefono);
+    void actualizarCliente(Long id, String nombreLegal, String numeroIdentificacion, String direccion, String telefono);
 
-    public void eliminarCliente(Long id);
+    void eliminarCliente(Long id);
 
-    public List<Cliente> listarClientes();
+    List<Cliente> listarClientes();
 
-    public Cliente buscarClientePorId(Long id);
+    Cliente buscarClientePorId(Long id);
 
-    public List<Cliente> buscarClientePorNombreLegal(String nombreLegal);
+    List<Cliente> buscarClientePorNombreLegal(String nombreLegal);
+
 }

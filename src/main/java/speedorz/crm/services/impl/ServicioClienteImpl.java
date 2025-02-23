@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import speedorz.crm.domain.Cliente;
 import speedorz.crm.repository.RepositorioCliente;
 import speedorz.crm.services.ServicioCliente;
+import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
 
@@ -18,13 +19,13 @@ public class ServicioClienteImpl implements ServicioCliente {
         this.repositorioCliente = repositorioCliente;
     }
     @Override
-    public void crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono) {
+    public Cliente crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono) {
         Cliente cliente = new Cliente();
         cliente.setNombreLegal(nombreLegal);
         cliente.setNumeroIdentificacion(numeroIdentificacion);
         cliente.setDireccion(direccion);
         cliente.setTelefono(telefono);
-        repositorioCliente.save(cliente);
+        return repositorioCliente.save(cliente);
     }
 
     @Override
@@ -54,6 +55,7 @@ public class ServicioClienteImpl implements ServicioCliente {
 
     @Override
     public List<Cliente> buscarClientePorNombreLegal(String nombreLegal) {
-        return repositorioCliente.findClienteByNombreLegal(nombreLegal);
+        String nombreLegalBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombreLegal);
+        return repositorioCliente.findClientesByNombreLegalContainsIgnoreCase(nombreLegalBusqueda);
     }
 }
