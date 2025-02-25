@@ -18,6 +18,7 @@ public class ServicioClienteImpl implements ServicioCliente {
     public ServicioClienteImpl(RepositorioCliente repositorioCliente) {
         this.repositorioCliente = repositorioCliente;
     }
+
     @Override
     public Cliente crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono) {
         Cliente cliente = new Cliente();

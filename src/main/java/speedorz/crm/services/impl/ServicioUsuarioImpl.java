@@ -25,7 +25,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
     }
 
     @Override
-    public Usuario crearUsuario(String nombreUsuario, String contrasena,String nombreCompleto, String cedula, String direccion, String telefono, String rol, String estado) {
+    public Usuario crearUsuario(String nombreUsuario, String contrasena, String nombreCompleto, String cedula, String direccion, String telefono, String rol, String estado) {
         Usuario usuario = new Usuario();
         usuario.setNombreUsuario(nombreUsuario);
         usuario.setContrasena(contrasena);
