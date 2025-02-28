@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import speedorz.crm.domain.Impuesto;
 import speedorz.crm.repository.RepositorioImpuesto;
 import speedorz.crm.services.ServicioImpuesto;
+import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,21 +21,17 @@ public class ServicioImpuestoImpl implements ServicioImpuesto {
     }
 
     @Override
-    public Impuesto crearImpuesto(String nombre, BigDecimal porcentaje, String descripcion) {
-        Impuesto impuesto = new Impuesto();
-        impuesto.setNombre(nombre);
-        impuesto.setPorcentaje(porcentaje);
-        impuesto.setDescripcion(descripcion);
+    public Impuesto crearImpuesto(Impuesto impuesto) {
         return repositorioImpuesto.save(impuesto);
     }
 
     @Override
-    public void actualizarImpuesto(Long id, String nombre, BigDecimal porcentaje, String descripcion) {
-        Impuesto impuesto = repositorioImpuesto.findById(id).orElseThrow();
-        impuesto.setNombre(nombre);
-        impuesto.setPorcentaje(porcentaje);
-        impuesto.setDescripcion(descripcion);
-        repositorioImpuesto.save(impuesto);
+    public void actualizarImpuesto(Impuesto impuesto) {
+        Impuesto newImpuesto = repositorioImpuesto.findById(impuesto.getId()).orElseThrow();
+        newImpuesto.setNombre(impuesto.getNombre());
+        newImpuesto.setDescripcion(impuesto.getDescripcion());
+        newImpuesto.setPorcentaje(impuesto.getPorcentaje());
+        repositorioImpuesto.save(newImpuesto);
     }
 
     @Override
@@ -49,7 +46,8 @@ public class ServicioImpuestoImpl implements ServicioImpuesto {
 
     @Override
     public List<Impuesto> buscarImpuestoPorNombre(String nombre) {
-        return repositorioImpuesto.findImpuestosByNombreContainsIgnoreCase(nombre);
+        String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
+        return repositorioImpuesto.findImpuestosByNombreContainsIgnoreCase(nombreBusqueda);
     }
 
     @Override

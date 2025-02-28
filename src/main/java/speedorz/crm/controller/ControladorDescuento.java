@@ -27,7 +27,7 @@ public class ControladorDescuento {
 
     @PostMapping
     public ResponseEntity<Descuento> crearDescuento(@RequestBody Descuento descuento) {
-        Descuento respuesta = servicioDescuento.crearDescuento(descuento.getNombre(), descuento.getDescripcion(), descuento.getPorcentaje());
+        Descuento respuesta = servicioDescuento.crearDescuento(descuento);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 
@@ -51,7 +51,10 @@ public class ControladorDescuento {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizarDescuento(@PathVariable Long id, @RequestBody Descuento descuento) {
-        servicioDescuento.actualizarDescuento(id, descuento.getNombre(), descuento.getDescripcion(), descuento.getPorcentaje());
+        if (!id.equals(descuento.getId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        servicioDescuento.actualizarDescuento(descuento);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

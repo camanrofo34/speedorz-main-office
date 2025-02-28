@@ -6,12 +6,13 @@ import org.springframework.stereotype.Repository;
 import speedorz.crm.domain.Usuario;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
 public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
 
-    List<Usuario> findUsuariosByNombreUsuarioContainsIgnoreCase(String nombreUsuario);
+    List<Usuario> findUsuariosByNombreCompletoContainsIgnoreCase(String nombreUsuario);
 
     Usuario findUsuarioByNombreUsuario(String nombreUsuario);
 }

@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ServicioVehiculo {
 
-    Vehiculo crearVehiculo(String nombre, String marca, String modelo, String descripcion, int stock, double precio);
+    Vehiculo crearVehiculo(Vehiculo vehiculo);
 
-    void actualizarVehiculo(Long id, String nombre, String marca, String modelo, String descripcion, int stock, double precio);
+    void actualizarVehiculo(Vehiculo vehiculo);
 
     void eliminarVehiculo(Long id);
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -16,23 +17,38 @@ public class OrdenVehiculo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idOrdenVehiculo;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "orden_id", nullable = false)
-    private OrdenCompra ordenCompra;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "vehiculo_id", nullable = false)
-    private Vehiculo vehiculo;
-
-    @Column(nullable = false)
     private int cantidad;
 
-    @Column(nullable = false)
     private BigDecimal precioUnitario;
 
-    @Column(nullable = false)
     private BigDecimal subtotal;
+
+    private BigDecimal total;
+
+    @ManyToOne
+    @JoinColumn(name = "id_vehiculo")
+    private Vehiculo vehiculo;
+
+    @ManyToOne
+    @JoinColumn(name = "id_orden_compra")
+    private OrdenCompra ordenCompra;
+
+    @ManyToMany
+    @JoinTable(
+            name = "orden_vehiculo_descuento",
+            joinColumns = @JoinColumn(name = "id_orden_vehiculo"),
+            inverseJoinColumns = @JoinColumn(name = "id_descuento")
+    )
+    private Set<Descuento> descuentos;
+
+    @ManyToMany
+    @JoinTable(
+            name = "orden_vehiculo_impuesto",
+            joinColumns = @JoinColumn(name = "id_orden_vehiculo"),
+            inverseJoinColumns = @JoinColumn(name = "id_impuesto")
+    )
+    private Set<Impuesto> impuestos;
 
 }

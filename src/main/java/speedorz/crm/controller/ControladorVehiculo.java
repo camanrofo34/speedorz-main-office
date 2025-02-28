@@ -25,8 +25,8 @@ public class ControladorVehiculo {
     }
 
     @PostMapping
-    public ResponseEntity<Vehiculo> crearVehiculo(String nombre, String marca, String modelo, String descripcion, int stock, double precio) {
-        Vehiculo respuesta = servicioVehiculo.crearVehiculo(nombre, marca, modelo, descripcion, stock, precio);
+    public ResponseEntity<Vehiculo> crearVehiculo(@RequestBody Vehiculo vehiculo) {
+        Vehiculo respuesta = servicioVehiculo.crearVehiculo(vehiculo);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 
@@ -37,7 +37,7 @@ public class ControladorVehiculo {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Vehiculo> buscarVehiculoPorId(Long id) {
+    public ResponseEntity<Vehiculo> buscarVehiculoPorId(@PathVariable Long id) {
         Vehiculo vehiculo = servicioVehiculo.buscarVehiculoPorId(id);
         return new ResponseEntity<>(vehiculo, HttpStatus.OK);
     }
@@ -50,7 +50,10 @@ public class ControladorVehiculo {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizarVehiculo(@PathVariable Long id, @RequestBody Vehiculo vehiculo) {
-        servicioVehiculo.actualizarVehiculo(id, vehiculo.getNombre(), vehiculo.getMarca(), vehiculo.getModelo(), vehiculo.getDescripcion(), vehiculo.getStock(), vehiculo.getPrecio());
+        if (!id.equals(vehiculo.getIdVehiculo())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        servicioVehiculo.actualizarVehiculo(vehiculo);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

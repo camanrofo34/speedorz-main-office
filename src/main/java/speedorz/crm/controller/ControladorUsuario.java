@@ -28,7 +28,8 @@ public class ControladorUsuario {
 
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
-        Usuario respuesta = servicioUsuario.crearUsuario(usuario.getNombreUsuario(), passwordEncoder.encode(usuario.getContrasena()), usuario.getNombreCompleto(), usuario.getCedula(), usuario.getDireccion(), usuario.getTelefono(), usuario.getRol(), usuario.getEstado());
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+        Usuario respuesta = servicioUsuario.crearUsuario(usuario);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 
@@ -52,7 +53,11 @@ public class ControladorUsuario {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-        servicioUsuario.actualizarUsuario(id, usuario.getNombreUsuario(), passwordEncoder.encode(usuario.getContrasena()), usuario.getNombreCompleto(), usuario.getCedula(), usuario.getRol(), usuario.getEstado());
+        if (!id.equals(usuario.getIdUsuario())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+        servicioUsuario.actualizarUsuario(usuario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

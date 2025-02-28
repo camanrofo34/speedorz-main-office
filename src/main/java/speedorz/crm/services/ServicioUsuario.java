@@ -5,9 +5,9 @@ import speedorz.crm.domain.Usuario;
 import java.util.List;
 
 public interface ServicioUsuario {
-    Usuario crearUsuario(String nombreUsuario, String contrasena, String nombreCompleto, String cedula, String direccion, String telefono, String rol, String estado);
+    Usuario crearUsuario(Usuario usuario);
 
-    void actualizarUsuario(Long id, String nombreUsuario, String contrasena, String nombreCompleto, String cedula, String rol, String estado);
+    void actualizarUsuario(Usuario usuario);
 
     void eliminarUsuario(Long id);
 

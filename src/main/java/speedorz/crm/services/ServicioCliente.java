@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface ServicioCliente {
 
-    Cliente crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono);
+    Cliente crearCliente(Cliente cliente);
 
-    void actualizarCliente(Long id, String nombreLegal, String numeroIdentificacion, String direccion, String telefono);
+    void actualizarCliente(Cliente cliente);
 
     void eliminarCliente(Long id);
 

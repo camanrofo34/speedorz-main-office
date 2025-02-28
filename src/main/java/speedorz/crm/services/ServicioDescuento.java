@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface ServicioDescuento {
 
-    Descuento crearDescuento(String nombre, String descripcion, BigDecimal porcentaje);
+    Descuento crearDescuento(Descuento descuento);
 
-    void actualizarDescuento(Long id, String nombre, String descripcion, BigDecimal porcentaje);
+    void actualizarDescuento(Descuento descuento);
 
     void eliminarDescuento(Long id);
 

@@ -20,26 +20,20 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
     }
 
     @Override
-    public Vehiculo crearVehiculo(String nombre, String marca, String modelo, String descripcion, int stock, double precio) {
-        Vehiculo vehiculo = new Vehiculo();
-        vehiculo.setNombre(nombre);
-        vehiculo.setMarca(marca);
-        vehiculo.setModelo(modelo);
-        vehiculo.setDescripcion(descripcion);
-        vehiculo.setStock(stock);
-        vehiculo.setPrecio(precio);
+    public Vehiculo crearVehiculo(Vehiculo vehiculo) {
         return repositorioVehiculo.save(vehiculo);
     }
 
     @Override
-    public void actualizarVehiculo(Long id, String nombre, String marca, String modelo, String descripcion, int stock, double precio) {
-        Vehiculo vehiculo = repositorioVehiculo.findById(id).orElseThrow();
-        vehiculo.setNombre(nombre);
-        vehiculo.setMarca(marca);
-        vehiculo.setModelo(modelo);
-        vehiculo.setDescripcion(descripcion);
-        vehiculo.setStock(stock);
-        vehiculo.setPrecio(precio);
+    public void actualizarVehiculo(Vehiculo vehiculo) {
+        Vehiculo newVehiculo = repositorioVehiculo.findById(vehiculo.getIdVehiculo()).orElseThrow();
+        newVehiculo.setIdVehiculo(vehiculo.getIdVehiculo());
+        newVehiculo.setNombre(vehiculo.getNombre());
+        newVehiculo.setMarca(vehiculo.getMarca());
+        newVehiculo.setModelo(vehiculo.getModelo());
+        newVehiculo.setDescripcion(vehiculo.getDescripcion());
+        newVehiculo.setPrecio(vehiculo.getPrecio());
+        newVehiculo.setStock(vehiculo.getStock());
         repositorioVehiculo.save(vehiculo);
     }
 
@@ -61,6 +55,6 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
     @Override
     public List<Vehiculo> buscarVehiculosPorNombre(String nombre) {
         String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
-        return repositorioVehiculo.findVehiculosByNombreContainsIgnoreCase(nombre);
+        return repositorioVehiculo.findVehiculosByNombreContainsIgnoreCase(nombreBusqueda);
     }
 }

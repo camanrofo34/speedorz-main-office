@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
-@PreAuthorize("hasRole('ADMINCLIENTES')")
+@PreAuthorize("hasRole('RECEPCION')")
 public class ControladorCliente {
 
     private final ServicioCliente servicioCliente;
@@ -24,7 +24,7 @@ public class ControladorCliente {
 
     @PostMapping
     public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
-        Cliente respuesta = servicioCliente.crearCliente(cliente.getNombreLegal(), cliente.getNumeroIdentificacion(), cliente.getDireccion(), cliente.getTelefono());
+        Cliente respuesta = servicioCliente.crearCliente(cliente);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 
@@ -48,7 +48,10 @@ public class ControladorCliente {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizarCliente(@PathVariable Long id, @RequestBody Cliente cliente) {
-        servicioCliente.actualizarCliente(id, cliente.getNombreLegal(), cliente.getNumeroIdentificacion(), cliente.getDireccion(), cliente.getTelefono());
+        if (!id.equals(cliente.getIdCliente())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        servicioCliente.actualizarCliente(cliente);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

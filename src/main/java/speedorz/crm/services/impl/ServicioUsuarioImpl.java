@@ -13,6 +13,7 @@ import speedorz.crm.services.ServicioUsuario;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService {
@@ -25,28 +26,18 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
     }
 
     @Override
-    public Usuario crearUsuario(String nombreUsuario, String contrasena, String nombreCompleto, String cedula, String direccion, String telefono, String rol, String estado) {
-        Usuario usuario = new Usuario();
-        usuario.setNombreUsuario(nombreUsuario);
-        usuario.setContrasena(contrasena);
-        usuario.setNombreCompleto(nombreCompleto);
-        usuario.setDireccion(direccion);
-        usuario.setTelefono(telefono);
-        usuario.setCedula(cedula);
-        usuario.setRol(rol);
-        usuario.setEstado(estado);
+    public Usuario crearUsuario(Usuario usuario) {
         return repositorioUsuario.save(usuario);
     }
 
     @Override
-    public void actualizarUsuario(Long id, String nombreUsuario, String contrasena, String nombreCompleto, String cedula, String rol, String estado) {
-        Usuario usuario = repositorioUsuario.findById(id).orElseThrow();
-        usuario.setNombreUsuario(nombreUsuario);
-        usuario.setContrasena(contrasena);
-        usuario.setNombreCompleto(nombreCompleto);
-        usuario.setCedula(cedula);
-        usuario.setRol(rol);
-        usuario.setEstado(estado);
+    public void actualizarUsuario(Usuario usuario) {
+        Usuario newUsuario = repositorioUsuario.findById(usuario.getIdUsuario()).orElseThrow();
+        newUsuario.setIdUsuario(usuario.getIdUsuario());
+        newUsuario.setNombreCompleto(usuario.getNombreCompleto());
+        newUsuario.setTelefono(usuario.getTelefono());
+        newUsuario.setDireccion(usuario.getDireccion());
+        newUsuario.setRol(usuario.getRol());
         repositorioUsuario.save(usuario);
     }
 
@@ -68,7 +59,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
     @Override
     public List<Usuario> buscarUsuarioPorNombreUsuario(String nombreUsuario) {
         String nombreUsuarioBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombreUsuario);
-        return repositorioUsuario.findUsuariosByNombreUsuarioContainsIgnoreCase(nombreUsuarioBusqueda);
+        return repositorioUsuario.findUsuariosByNombreCompletoContainsIgnoreCase(nombreUsuarioBusqueda);
     }
 
     @Override

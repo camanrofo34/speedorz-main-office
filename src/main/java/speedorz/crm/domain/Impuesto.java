@@ -29,7 +29,7 @@ public class Impuesto {
     @Column(nullable = false)
     private BigDecimal porcentaje;
 
-    @ManyToMany(mappedBy = "impuestos")
-    @ToString.Exclude
-    private Set<OrdenCompra> ordenes = new HashSet<>();
+    public double calcularImpuesto(double subtotalVehiculo) {
+        return subtotalVehiculo * (porcentaje.doubleValue()/100);
+    }
 }

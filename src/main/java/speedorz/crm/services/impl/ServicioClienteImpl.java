@@ -20,23 +20,19 @@ public class ServicioClienteImpl implements ServicioCliente {
     }
 
     @Override
-    public Cliente crearCliente(String nombreLegal, String numeroIdentificacion, String direccion, String telefono) {
-        Cliente cliente = new Cliente();
-        cliente.setNombreLegal(nombreLegal);
-        cliente.setNumeroIdentificacion(numeroIdentificacion);
-        cliente.setDireccion(direccion);
-        cliente.setTelefono(telefono);
+    public Cliente crearCliente(Cliente cliente) {
         return repositorioCliente.save(cliente);
     }
 
     @Override
-    public void actualizarCliente(Long id, String nombreLegal, String numeroIdentificacion, String direccion, String telefono) {
-        Cliente cliente = repositorioCliente.findById(id).orElseThrow();
-        cliente.setNombreLegal(nombreLegal);
-        cliente.setNumeroIdentificacion(numeroIdentificacion);
-        cliente.setDireccion(direccion);
-        cliente.setTelefono(telefono);
-        repositorioCliente.save(cliente);
+    public void actualizarCliente(Cliente cliente) {
+        Cliente newCliente = repositorioCliente.findById(cliente.getIdCliente()).orElseThrow();
+        newCliente.setIdCliente(cliente.getIdCliente());
+        newCliente.setNombreLegal(cliente.getNombreLegal());
+        newCliente.setNumeroIdentificacion(cliente.getNumeroIdentificacion());
+        newCliente.setDireccion(cliente.getDireccion());
+        newCliente.setTelefono(cliente.getTelefono());
+        repositorioCliente.save(newCliente);
     }
 
     @Override

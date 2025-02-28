@@ -49,13 +49,16 @@ public class ControladorImpuesto {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizarImpuesto(@PathVariable Long id, @RequestBody Impuesto impuesto) {
-        servicioImpuesto.actualizarImpuesto(id, impuesto.getNombre(), impuesto.getPorcentaje(), impuesto.getDescripcion());
+        if (!id.equals(impuesto.getId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        servicioImpuesto.actualizarImpuesto(impuesto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<Impuesto> crearImpuesto(@RequestBody Impuesto impuesto) {
-        Impuesto respuesta = servicioImpuesto.crearImpuesto(impuesto.getNombre(), impuesto.getPorcentaje(), impuesto.getDescripcion());
+        Impuesto respuesta = servicioImpuesto.crearImpuesto(impuesto);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
     }
 

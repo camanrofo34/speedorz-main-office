@@ -28,6 +28,7 @@ public class Descuento {
     @Column(nullable = false)
     private BigDecimal porcentaje;
 
-    @ManyToMany(mappedBy = "descuentos")
-    private Set<OrdenCompra> ordenes = new HashSet<>();
+    public double calcularDescuento(double subtotalVehiculo) {
+        return subtotalVehiculo * (porcentaje.doubleValue() / 100);
+    }
 }

@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface ServicioImpuesto {
 
-    Impuesto crearImpuesto(String nombre, BigDecimal porcentaje, String descripcion);
+    Impuesto crearImpuesto(Impuesto impuesto);
 
-    void actualizarImpuesto(Long id, String nombre, BigDecimal porcentaje, String descripcion);
+    void actualizarImpuesto(Impuesto impuesto);
 
     void eliminarImpuesto(Long id);
 

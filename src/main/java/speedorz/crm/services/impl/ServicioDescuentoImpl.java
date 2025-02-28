@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import speedorz.crm.domain.Descuento;
 import speedorz.crm.repository.RepositorioDescuento;
 import speedorz.crm.services.ServicioDescuento;
+import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,21 +22,17 @@ public class ServicioDescuentoImpl implements ServicioDescuento {
 
 
     @Override
-    public Descuento crearDescuento(String nombre, String descripcion, BigDecimal porcentaje) {
-        Descuento descuento = new Descuento();
-        descuento.setNombre(nombre);
-        descuento.setDescripcion(descripcion);
-        descuento.setPorcentaje(porcentaje);
+    public Descuento crearDescuento(Descuento descuento) {
         return repositorioDescuento.save(descuento);
     }
 
     @Override
-    public void actualizarDescuento(Long id, String nombre, String descripcion, BigDecimal porcentaje) {
-        Descuento descuento = repositorioDescuento.findById(id).orElseThrow();
-        descuento.setNombre(nombre);
-        descuento.setDescripcion(descripcion);
-        descuento.setPorcentaje(porcentaje);
-        repositorioDescuento.save(descuento);
+    public void actualizarDescuento(Descuento descuento) {
+        Descuento newDescuento = repositorioDescuento.findById(descuento.getId()).orElseThrow();
+        newDescuento.setNombre(descuento.getNombre());
+        newDescuento.setPorcentaje(descuento.getPorcentaje());
+        newDescuento.setPorcentaje(descuento.getPorcentaje());
+        repositorioDescuento.save(newDescuento);
     }
 
     @Override
@@ -55,6 +52,7 @@ public class ServicioDescuentoImpl implements ServicioDescuento {
 
     @Override
     public List<Descuento> buscarDescuentoPorNombre(String nombre) {
-        return repositorioDescuento.findDescuentosByNombreContainsIgnoreCase(nombre);
+        String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
+        return repositorioDescuento.findDescuentosByNombreContainsIgnoreCase(nombreBusqueda);
     }
 }
