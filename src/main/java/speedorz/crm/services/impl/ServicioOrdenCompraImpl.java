@@ -71,7 +71,8 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
             ordenVehiculo.setPrecioUnitario(BigDecimal.valueOf(vehiculo.getPrecio()));
 
             double subtotalVehiculo = v.getCantidad() * vehiculo.getPrecio();
-
+            subtotal[0] += subtotalVehiculo;
+            ordenVehiculo.setSubtotal(BigDecimal.valueOf(subtotalVehiculo));
             // Aplicar descuentos
             double finalSubtotalVehiculo = subtotalVehiculo;
             double descuentoTotalVehiculo = v.getIdDescuentos().stream()
@@ -92,19 +93,17 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                     .map(Optional::get)
                     .mapToDouble(impuesto -> impuesto.calcularImpuesto(finalSubtotalVehiculo1))
                     .sum();
-
+            subtotalVehiculo += impuestoTotalVehiculo;
             totalImpuestos[0] += impuestoTotalVehiculo;
 
-            ordenVehiculo.setSubtotal(BigDecimal.valueOf(subtotalVehiculo));
-            subtotal[0] += subtotalVehiculo;
-
+            ordenVehiculo.setTotal(BigDecimal.valueOf(subtotalVehiculo));
             return ordenVehiculo;
         }).toList();
 
         repositorioOrdenVehiculo.saveAll(ordenVehiculos);
 
         // Calcular total final
-        double total = subtotal[0] + totalImpuestos[0];
+        double total = subtotal[0] + totalImpuestos[0] - totalDescuentos[0];
 
         nuevaOrdenCompra.setSubtotal(BigDecimal.valueOf(subtotal[0]));
         nuevaOrdenCompra.setTotal(BigDecimal.valueOf(total));

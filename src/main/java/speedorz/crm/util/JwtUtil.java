@@ -18,7 +18,7 @@ public class JwtUtil {
             .encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded());
 
     private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(Base64.getDecoder().decode(BASE64_SECRET));
-    private final long EXPIRATION_TIME = 900000; // 15 minutes
+    private final long EXPIRATION_TIME = (long) 2.88e+7; // 8 horas
 
     public String generateToken(String username) {
         return Jwts.builder()
