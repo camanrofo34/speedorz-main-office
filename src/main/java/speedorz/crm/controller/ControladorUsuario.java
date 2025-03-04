@@ -42,6 +42,9 @@ public class ControladorUsuario {
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id) {
         Usuario usuario = servicioUsuario.buscarUsuarioPorId(id);
+        if (usuario == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 
@@ -56,7 +59,6 @@ public class ControladorUsuario {
         if (!id.equals(usuario.getIdUsuario())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         servicioUsuario.actualizarUsuario(usuario);
         return new ResponseEntity<>(HttpStatus.OK);
     }

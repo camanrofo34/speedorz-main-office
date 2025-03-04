@@ -69,7 +69,12 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
             ordenVehiculo.setVehiculo(vehiculo);
             ordenVehiculo.setCantidad(v.getCantidad());
             ordenVehiculo.setPrecioUnitario(BigDecimal.valueOf(vehiculo.getPrecio()));
-
+            if (v.getCantidad() > vehiculo.getStock()) {
+                throw new RuntimeException("No hay suficiente stock para el vehículo " + vehiculo.getNombre());
+            }else{
+                vehiculo.setStock(vehiculo.getStock() - v.getCantidad());
+                repositorioVehiculo.save(vehiculo);
+            }
             double subtotalVehiculo = v.getCantidad() * vehiculo.getPrecio();
             subtotal[0] += subtotalVehiculo;
             ordenVehiculo.setSubtotal(BigDecimal.valueOf(subtotalVehiculo));
@@ -85,13 +90,11 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
             subtotalVehiculo -= descuentoTotalVehiculo;
             totalDescuentos[0] += descuentoTotalVehiculo;
 
-            // Aplicar impuestos
-            double finalSubtotalVehiculo1 = subtotalVehiculo;
             double impuestoTotalVehiculo = v.getIdImpuestos().stream()
                     .map(repositorioImpuesto::findById)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .mapToDouble(impuesto -> impuesto.calcularImpuesto(finalSubtotalVehiculo1))
+                    .mapToDouble(impuesto -> impuesto.calcularImpuesto(finalSubtotalVehiculo))
                     .sum();
             subtotalVehiculo += impuestoTotalVehiculo;
             totalImpuestos[0] += impuestoTotalVehiculo;

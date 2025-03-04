@@ -47,7 +47,7 @@ public class ServicioClienteImpl implements ServicioCliente {
 
     @Override
     public Cliente buscarClientePorId(Long id) {
-        return repositorioCliente.findById(id).orElseThrow();
+        return repositorioCliente.findById(id).orElseThrow(()-> new RuntimeException("Cliente no encontrado"));
     }
 
     @Override

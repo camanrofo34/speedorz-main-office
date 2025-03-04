@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String requestPath = request.getServletPath();
 
-        if (requestPath.startsWith("/autenticacion")) {
+        if (requestPath.startsWith("/autenticacion") || requestPath.startsWith("/promocion")) {
             chain.doFilter(request, response);
             return;
         }

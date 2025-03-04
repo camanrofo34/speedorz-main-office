@@ -31,19 +31,22 @@ public class ControladorVehiculo {
     }
 
     @GetMapping
-    public ResponseEntity<Vehiculo> listarVehiculos() {
-        Vehiculo vehiculo = servicioVehiculo.buscarVehiculoPorId(1L);
-        return new ResponseEntity<>(vehiculo, HttpStatus.OK);
+    public ResponseEntity<List<Vehiculo>> listarVehiculos() {
+        List<Vehiculo> vehiculos = servicioVehiculo.listarVehiculos();
+        return new ResponseEntity<>(vehiculos, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Vehiculo> buscarVehiculoPorId(@PathVariable Long id) {
         Vehiculo vehiculo = servicioVehiculo.buscarVehiculoPorId(id);
+        if (vehiculo == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(vehiculo, HttpStatus.OK);
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Vehiculo>> buscarVehiculoPorNombre(String nombre) {
+    public ResponseEntity<List<Vehiculo>> buscarVehiculoPorNombre(@RequestParam String nombre) {
         List<Vehiculo> vehiculos = servicioVehiculo.buscarVehiculosPorNombre(nombre);
         return new ResponseEntity<>(vehiculos, HttpStatus.OK);
     }

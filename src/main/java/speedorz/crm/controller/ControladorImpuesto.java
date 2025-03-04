@@ -13,7 +13,6 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/impuestos")
-@PreAuthorize("hasRole('SECRETARIO')")
 public class ControladorImpuesto {
 
     private final ServicioImpuesto servicioImpuesto;
@@ -24,29 +23,34 @@ public class ControladorImpuesto {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('SECRETARIO') or hasRole('ASESORCOMERCIAL')")
     public ResponseEntity<List<Impuesto>> listarImpuestos() {
         List<Impuesto> impuestos = servicioImpuesto.listarImpuestos();
         return new ResponseEntity<>(impuestos, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SECRETARIO') or hasRole('ASESORCOMERCIAL')")
     public ResponseEntity<Impuesto> buscarImpuestoPorId(@PathVariable Long id) {
         Impuesto impuesto = servicioImpuesto.buscarImpuestoPorId(id);
         return new ResponseEntity<>(impuesto, HttpStatus.OK);
     }
 
     @GetMapping("/buscar")
+    @PreAuthorize("hasRole('SECRETARIO') or hasRole('ASESORCOMERCIAL')")
     public ResponseEntity<List<Impuesto>> buscarImpuestoPorNombre(@RequestParam String nombre) {
         List<Impuesto> impuestos = servicioImpuesto.buscarImpuestoPorNombre(nombre);
         return new ResponseEntity<>(impuestos, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('SECRETARIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarImpuesto(@PathVariable Long id) {
         servicioImpuesto.eliminarImpuesto(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasRole('SECRETARIO')")
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizarImpuesto(@PathVariable Long id, @RequestBody Impuesto impuesto) {
         if (!id.equals(impuesto.getId())) {
@@ -56,6 +60,7 @@ public class ControladorImpuesto {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('SECRETARIO')")
     @PostMapping
     public ResponseEntity<Impuesto> crearImpuesto(@RequestBody Impuesto impuesto) {
         Impuesto respuesta = servicioImpuesto.crearImpuesto(impuesto);
