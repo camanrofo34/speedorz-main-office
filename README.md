@@ -182,3 +182,5 @@
 <h2>📄 Licencia</h2>
 <p>Este proyecto es de uso interno del consorcio <strong>AUTO-UPB</strong> y está sujeto a las políticas establecidas por las empresas participantes.</p>
 
+<p>*Proyecto Educativo Impulsado por Universidad Pontificia Bolivariana - Seccional Bucaramanga</p>
+
