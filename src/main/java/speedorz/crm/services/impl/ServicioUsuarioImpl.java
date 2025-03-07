@@ -7,13 +7,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import speedorz.crm.domain.Usuario;
+import speedorz.crm.domain.entities.Usuario;
 import speedorz.crm.repository.RepositorioUsuario;
 import speedorz.crm.services.ServicioUsuario;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService {

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import speedorz.crm.domain.Vehiculo;
+import speedorz.crm.domain.entities.Vehiculo;
 import speedorz.crm.services.ServicioVehiculo;
 import speedorz.crm.services.impl.ServicioVehiculoImpl;
 

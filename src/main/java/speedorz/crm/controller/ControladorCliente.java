@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import speedorz.crm.domain.Cliente;
+import speedorz.crm.domain.entities.Cliente;
 import speedorz.crm.services.ServicioCliente;
 
 import java.util.List;

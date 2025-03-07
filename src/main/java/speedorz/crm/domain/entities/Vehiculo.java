@@ -1,4 +1,4 @@
-package speedorz.crm.domain;
+package speedorz.crm.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

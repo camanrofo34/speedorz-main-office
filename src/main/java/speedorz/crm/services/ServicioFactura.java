@@ -1,6 +1,6 @@
 package speedorz.crm.services;
 
-import speedorz.crm.domain.Factura;
+import speedorz.crm.domain.entities.Factura;
 
 import java.util.List;
 

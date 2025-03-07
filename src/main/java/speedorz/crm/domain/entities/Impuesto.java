@@ -1,11 +1,10 @@
-package speedorz.crm.domain;
+package speedorz.crm.domain.entities;
+
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -13,7 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public class Descuento {
+public class Impuesto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +27,7 @@ public class Descuento {
     @Column(nullable = false)
     private BigDecimal porcentaje;
 
-    public double calcularDescuento(double subtotalVehiculo) {
-        return subtotalVehiculo * (porcentaje.doubleValue() / 100);
+    public double calcularImpuesto(double subtotalVehiculo) {
+        return subtotalVehiculo * (porcentaje.doubleValue()/100);
     }
 }

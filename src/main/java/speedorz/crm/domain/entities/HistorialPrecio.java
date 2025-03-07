@@ -1,5 +1,4 @@
-package speedorz.crm.domain;
-
+package speedorz.crm.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,28 +7,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "factura")
-public class Factura {
+public class HistorialPrecio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreEmpresa;
+    private BigDecimal precio;
 
-    private LocalDate fechaEmision;
+    private LocalDateTime fechaRegistro;
 
-    @OneToOne
-    @JoinColumn(name = "id_orden_compra")
-    private OrdenCompra ordenCompra;
+    @ManyToOne
+    @JoinColumn(name = "id_vehiculo")
+    private Vehiculo vehiculo;
 }
+

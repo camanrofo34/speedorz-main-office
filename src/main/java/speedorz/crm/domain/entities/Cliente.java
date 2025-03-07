@@ -1,4 +1,4 @@
-package speedorz.crm.domain;
+package speedorz.crm.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,30 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "usuario")
-public class Usuario {
+@Table(name = "cliente")
+public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUsuario;
-
-    @Column(nullable = false, unique = true)
-    private String nombreUsuario;
+    private Long idCliente;
 
     @Column(nullable = false)
-    private String nombreCompleto;
-
-    @Column(nullable = false)
-    private String contrasena;
+    private String nombreLegal;
 
     @Column(nullable = false, unique = true)
-    private String cedula;
+    private String numeroIdentificacion;
 
     @Column(nullable = false)
     private String direccion;
@@ -37,9 +30,4 @@ public class Usuario {
     @Column(nullable = false)
     private String telefono;
 
-    @Column(nullable = false)
-    private String rol;
-
-    @Column(nullable = false)
-    private String estado;
 }

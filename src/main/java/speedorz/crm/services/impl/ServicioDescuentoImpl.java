@@ -2,12 +2,11 @@ package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import speedorz.crm.domain.Descuento;
+import speedorz.crm.domain.entities.Descuento;
 import speedorz.crm.repository.RepositorioDescuento;
 import speedorz.crm.services.ServicioDescuento;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service

@@ -1,6 +1,6 @@
 package speedorz.crm.services;
 
-import speedorz.crm.domain.Cliente;
+import speedorz.crm.domain.entities.Cliente;
 
 import java.util.List;
 

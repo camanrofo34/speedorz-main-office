@@ -1,6 +1,6 @@
 package speedorz.crm.services;
 
-import speedorz.crm.domain.OrdenCompra;
+import speedorz.crm.domain.entities.OrdenCompra;
 import speedorz.crm.domain.dto.request.OrdenCompraDTO;
 
 import java.util.List;

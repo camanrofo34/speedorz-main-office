@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import speedorz.crm.domain.Descuento;
+import speedorz.crm.domain.entities.Descuento;
 import speedorz.crm.services.ServicioDescuento;
 import speedorz.crm.services.impl.ServicioDescuentoImpl;
 

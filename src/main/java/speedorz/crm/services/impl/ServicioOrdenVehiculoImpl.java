@@ -2,7 +2,7 @@ package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import speedorz.crm.domain.OrdenVehiculo;
+import speedorz.crm.domain.entities.OrdenVehiculo;
 import speedorz.crm.repository.RepositorioOrdenVehiculo;
 import speedorz.crm.services.ServicioOrdenVehiculo;
 

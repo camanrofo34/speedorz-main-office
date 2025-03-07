@@ -1,8 +1,7 @@
 package speedorz.crm.services;
 
-import speedorz.crm.domain.Impuesto;
+import speedorz.crm.domain.entities.Impuesto;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface ServicioImpuesto {

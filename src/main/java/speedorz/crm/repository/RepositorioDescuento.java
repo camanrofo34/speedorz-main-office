@@ -1,7 +1,7 @@
 package speedorz.crm.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import speedorz.crm.domain.Descuento;
+import speedorz.crm.domain.entities.Descuento;
 
 import java.util.List;
 

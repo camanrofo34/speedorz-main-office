@@ -2,7 +2,7 @@ package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import speedorz.crm.domain.Factura;
+import speedorz.crm.domain.entities.Factura;
 import speedorz.crm.repository.RepositorioFactura;
 import speedorz.crm.services.ServicioFactura;
 

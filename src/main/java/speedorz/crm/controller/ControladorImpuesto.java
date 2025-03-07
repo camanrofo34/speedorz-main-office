@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import speedorz.crm.domain.Impuesto;
+import speedorz.crm.domain.entities.Impuesto;
 import speedorz.crm.services.ServicioImpuesto;
 import speedorz.crm.services.impl.ServicioImpuestoImpl;
 import java.util.List;

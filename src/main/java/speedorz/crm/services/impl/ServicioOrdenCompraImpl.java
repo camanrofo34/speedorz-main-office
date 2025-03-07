@@ -2,8 +2,8 @@ package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import speedorz.crm.domain.*;
 import speedorz.crm.domain.dto.request.OrdenCompraDTO;
+import speedorz.crm.domain.entities.*;
 import speedorz.crm.repository.*;
 import speedorz.crm.services.ServicioOrdenCompra;
 

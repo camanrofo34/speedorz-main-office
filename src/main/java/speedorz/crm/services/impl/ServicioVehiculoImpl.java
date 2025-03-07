@@ -2,7 +2,7 @@ package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import speedorz.crm.domain.Vehiculo;
+import speedorz.crm.domain.entities.Vehiculo;
 import speedorz.crm.repository.RepositorioVehiculo;
 import speedorz.crm.services.ServicioVehiculo;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
