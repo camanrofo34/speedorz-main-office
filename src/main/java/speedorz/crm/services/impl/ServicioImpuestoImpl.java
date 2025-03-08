@@ -9,6 +9,10 @@ import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio {@link ServicioImpuesto}.
+ * Maneja la lógica de negocio para la gestión de impuestos.
+ */
 @Service
 public class ServicioImpuestoImpl implements ServicioImpuesto {
 
@@ -41,12 +45,6 @@ public class ServicioImpuestoImpl implements ServicioImpuesto {
     @Override
     public Impuesto buscarImpuestoPorId(Long id) {
         return repositorioImpuesto.findById(id).orElseThrow();
-    }
-
-    @Override
-    public List<Impuesto> buscarImpuestoPorNombre(String nombre) {
-        String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
-        return repositorioImpuesto.findImpuestosByNombreContainsIgnoreCase(nombreBusqueda);
     }
 
     @Override

@@ -9,6 +9,10 @@ import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio {@link ServicioCliente}.
+ * Maneja la lógica de negocio para la gestión de clientes.
+ */
 @Service
 public class ServicioClienteImpl implements ServicioCliente {
 

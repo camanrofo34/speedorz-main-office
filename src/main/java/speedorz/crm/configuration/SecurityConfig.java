@@ -21,6 +21,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Configuración de seguridad para el sistema Speedorz CRM.
+ * <p>
+ * Se define la política de seguridad, incluyendo la autenticación con JWT,
+ * configuración de CORS, manejo de sesiones sin estado y protección de endpoints.
+ * </p>
+ *
+ * @author Camilo
+ * @version 1.0
+ */
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
@@ -28,31 +38,68 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
+    /**
+     * Constructor que inyecta el filtro JWT.
+     *
+     * @param jwtFilter Filtro JWT para la autenticación basada en tokens.
+     */
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
+    /**
+     * Configura la cadena de filtros de seguridad de Spring Security.
+     * <p>
+     * - Deshabilita CSRF (porque usamos autenticación JWT). <br>
+     * - Configura CORS para permitir peticiones del frontend. <br>
+     * - Define qué endpoints son públicos y cuáles requieren autenticación. <br>
+     * - Establece la política de sesiones en STATELESS. <br>
+     * - Agrega el filtro JWT antes de la autenticación estándar de Spring Security.
+     * </p>
+     *
+     * @param http Objeto {@link HttpSecurity} para configurar la seguridad.
+     * @return Configuración de seguridad aplicada.
+     * @throws Exception Si ocurre algún error en la configuración.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF (innecesario con JWT)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/autenticacion/**", "/promocion").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/autenticacion/**", "/promocion").permitAll() // Endpoints públicos
+                        .anyRequest().authenticated() // Todo lo demás requiere autenticación
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // Agregar filtro JWT
 
         return http.build();
     }
 
+    /**
+     * Configura el `AuthenticationManager`, que maneja la autenticación en Spring Security.
+     *
+     * @param authenticationConfiguration Configuración de autenticación de Spring.
+     * @return Objeto `AuthenticationManager` configurado.
+     * @throws Exception Si ocurre un error al obtener el `AuthenticationManager`.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    /**
+     * Configura un proveedor de autenticación basado en DAO.
+     * <p>
+     * Se encarga de cargar los detalles del usuario desde la base de datos y
+     * validar las credenciales utilizando un `PasswordEncoder`.
+     * </p>
+     *
+     * @param userDetailsService Servicio para cargar los detalles del usuario.
+     * @param passwordEncoder    Codificador de contraseñas.
+     * @return Proveedor de autenticación configurado.
+     */
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -61,12 +108,30 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Define el `PasswordEncoder` que se utilizará para codificar y verificar contraseñas.
+     * <p>
+     * Se usa `BCryptPasswordEncoder`, que es seguro y ampliamente utilizado.
+     * </p>
+     *
+     * @return Instancia de `BCryptPasswordEncoder`.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Configuración de CORS
+    /**
+     * Configura CORS (Cross-Origin Resource Sharing) para permitir peticiones del frontend Angular.
+     * <p>
+     * - Permite peticiones desde `http://localhost:4200`. <br>
+     * - Habilita métodos HTTP como `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS` y `PATCH`. <br>
+     * - Permite las cabeceras `Authorization` y `Content-Type`. <br>
+     * - Habilita el uso de credenciales (como tokens JWT).
+     * </p>
+     *
+     * @return Configuración de CORS aplicada a todas las rutas (`/**`).
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -80,4 +145,3 @@ public class SecurityConfig {
         return source;
     }
 }
-

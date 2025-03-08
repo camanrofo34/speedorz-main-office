@@ -9,6 +9,10 @@ import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio {@link ServicioVehiculo}.
+ * Maneja la lógica de negocio para la gestión de vehículos.
+ */
 @Service
 public class ServicioVehiculoImpl implements ServicioVehiculo {
 

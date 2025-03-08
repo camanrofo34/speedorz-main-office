@@ -11,6 +11,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación del servicio {@link ServicioOrdenCompra}.
+ * Maneja la lógica de negocio para la gestión de órdenes de compra.
+ */
 @Service
 public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
 
@@ -54,14 +58,19 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
         nuevaOrdenCompra.setTotal(BigDecimal.ZERO);
         nuevaOrdenCompra.setSubtotal(BigDecimal.ZERO);
 
+        //Guardar para obtener el ID
         nuevaOrdenCompra = repositorioOrdenCompra.save(nuevaOrdenCompra);
 
+        // Iniciar valores totales
+        // Se utilizan arreglos para poder modificar los valores dentro de las expresiones lambda
+        // MANEJO DE HILOS
         final double[] subtotal = {0.0};
         final double[] totalImpuestos = {0.0};
         final double[] totalDescuentos = {0.0};
 
         // Procesar cada vehículo en la orden
         OrdenCompra finalNuevaOrdenCompra = nuevaOrdenCompra;
+
         List<OrdenVehiculo> ordenVehiculos = ordenCompra.getOrdenVehiculos().stream().map(v -> {
             Vehiculo vehiculo = repositorioVehiculo.findById(v.getIdVehiculo()).orElseThrow();
             OrdenVehiculo ordenVehiculo = new OrdenVehiculo();
@@ -75,6 +84,7 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                 vehiculo.setStock(vehiculo.getStock() - v.getCantidad());
                 repositorioVehiculo.save(vehiculo);
             }
+            // Calcular subtotal final
             double subtotalVehiculo = v.getCantidad() * vehiculo.getPrecio();
             subtotal[0] += subtotalVehiculo;
             ordenVehiculo.setSubtotal(BigDecimal.valueOf(subtotalVehiculo));
@@ -90,6 +100,7 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
             subtotalVehiculo -= descuentoTotalVehiculo;
             totalDescuentos[0] += descuentoTotalVehiculo;
 
+            // Aplicar impuestos
             double impuestoTotalVehiculo = v.getIdImpuestos().stream()
                     .map(repositorioImpuesto::findById)
                     .filter(Optional::isPresent)
@@ -99,18 +110,22 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
             subtotalVehiculo += impuestoTotalVehiculo;
             totalImpuestos[0] += impuestoTotalVehiculo;
 
+            //Calcular y aplicar total final
             ordenVehiculo.setTotal(BigDecimal.valueOf(subtotalVehiculo));
             return ordenVehiculo;
         }).toList();
 
+        // Guardar ordenes de vehículos
         repositorioOrdenVehiculo.saveAll(ordenVehiculos);
 
         // Calcular total final
         double total = subtotal[0] + totalImpuestos[0] - totalDescuentos[0];
 
+        // Actualizar orden de compra con totales
         nuevaOrdenCompra.setSubtotal(BigDecimal.valueOf(subtotal[0]));
         nuevaOrdenCompra.setTotal(BigDecimal.valueOf(total));
 
+        // Guardar orden de compra
         return repositorioOrdenCompra.save(nuevaOrdenCompra);
     }
 

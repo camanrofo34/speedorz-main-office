@@ -9,6 +9,10 @@ import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio {@link ServicioDescuento}.
+ * Maneja la lógica de negocio para la gestión de descuentos.
+ */
 @Service
 public class ServicioDescuentoImpl implements ServicioDescuento {
 
@@ -49,9 +53,4 @@ public class ServicioDescuentoImpl implements ServicioDescuento {
         return repositorioDescuento.findById(id).orElseThrow();
     }
 
-    @Override
-    public List<Descuento> buscarDescuentoPorNombre(String nombre) {
-        String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
-        return repositorioDescuento.findDescuentosByNombreContainsIgnoreCase(nombreBusqueda);
-    }
 }

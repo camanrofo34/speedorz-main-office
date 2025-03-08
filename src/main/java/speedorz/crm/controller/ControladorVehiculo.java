@@ -4,65 +4,100 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import speedorz.crm.domain.entities.Vehiculo;
 import speedorz.crm.services.ServicioVehiculo;
-import speedorz.crm.services.impl.ServicioVehiculoImpl;
 
 import java.util.List;
+import java.util.Optional;
 
-@Controller
+/**
+ * Controlador para la gestión de vehículos.
+ * Proporciona endpoints para CRUD y búsqueda de vehículos.
+ */
+@RestController
 @RequestMapping("/vehiculos")
-@PreAuthorize("hasRole('ADMININVENTARIO')")
 public class ControladorVehiculo {
 
     private final ServicioVehiculo servicioVehiculo;
 
     @Autowired
-    public ControladorVehiculo(ServicioVehiculoImpl servicioVehiculo) {
+    public ControladorVehiculo(ServicioVehiculo servicioVehiculo) {
         this.servicioVehiculo = servicioVehiculo;
     }
 
+    /**
+     * Crea un nuevo vehículo.
+     * Solo puede ser ejecutado por usuarios con el rol de ADMININVENTARIO.
+     */
     @PostMapping
+    @PreAuthorize("hasRole('ADMININVENTARIO')")
     public ResponseEntity<Vehiculo> crearVehiculo(@RequestBody Vehiculo vehiculo) {
         Vehiculo respuesta = servicioVehiculo.crearVehiculo(vehiculo);
-        return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
+    /**
+     * Lista todos los vehículos disponibles.
+     */
     @GetMapping
     public ResponseEntity<List<Vehiculo>> listarVehiculos() {
         List<Vehiculo> vehiculos = servicioVehiculo.listarVehiculos();
-        return new ResponseEntity<>(vehiculos, HttpStatus.OK);
+        if (vehiculos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(vehiculos);
     }
 
+    /**
+     * Busca un vehículo por su ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Vehiculo> buscarVehiculoPorId(@PathVariable Long id) {
-        Vehiculo vehiculo = servicioVehiculo.buscarVehiculoPorId(id);
-        if (vehiculo == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(vehiculo, HttpStatus.OK);
+        Optional<Vehiculo> vehiculo = Optional.ofNullable(servicioVehiculo.buscarVehiculoPorId(id));
+        return vehiculo.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Busca vehículos por nombre.
+     */
     @GetMapping("/buscar")
     public ResponseEntity<List<Vehiculo>> buscarVehiculoPorNombre(@RequestParam String nombre) {
         List<Vehiculo> vehiculos = servicioVehiculo.buscarVehiculosPorNombre(nombre);
-        return new ResponseEntity<>(vehiculos, HttpStatus.OK);
+        if (vehiculos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(vehiculos);
     }
 
+    /**
+     * Actualiza la información de un vehículo.
+     */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMININVENTARIO')")
     public ResponseEntity<Void> actualizarVehiculo(@PathVariable Long id, @RequestBody Vehiculo vehiculo) {
         if (!id.equals(vehiculo.getIdVehiculo())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
+        }
+        if (servicioVehiculo.buscarVehiculoPorId(id) == null) {
+            return ResponseEntity.notFound().build();
         }
         servicioVehiculo.actualizarVehiculo(vehiculo);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
+    /**
+     * Elimina un vehículo por su ID.
+     */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMININVENTARIO')")
     public ResponseEntity<Void> eliminarVehiculo(@PathVariable Long id) {
+        if (servicioVehiculo.buscarVehiculoPorId(id) == null) {
+            return ResponseEntity.notFound().build();
+        }
         servicioVehiculo.eliminarVehiculo(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 }
+

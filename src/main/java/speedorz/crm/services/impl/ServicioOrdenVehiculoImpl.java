@@ -8,6 +8,10 @@ import speedorz.crm.services.ServicioOrdenVehiculo;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio {@link ServicioOrdenVehiculo}.
+ * Maneja la lógica de negocio para la gestión de órdenes de vehículos.
+ */
 @Repository
 public class ServicioOrdenVehiculoImpl implements ServicioOrdenVehiculo {
 

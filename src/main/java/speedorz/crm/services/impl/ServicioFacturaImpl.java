@@ -8,6 +8,10 @@ import speedorz.crm.services.ServicioFactura;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio {@link ServicioFactura}.
+ * Maneja la lógica de negocio para la gestión de facturas.
+ */
 @Service
 public class ServicioFacturaImpl implements ServicioFactura {
 

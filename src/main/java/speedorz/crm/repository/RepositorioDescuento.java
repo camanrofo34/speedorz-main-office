@@ -5,8 +5,10 @@ import speedorz.crm.domain.entities.Descuento;
 
 import java.util.List;
 
+/**
+ * Repositorio para la gestión de la entidad {@link Descuento}.
+ * Proporciona métodos para interactuar con la base de datos mediante JPA.
+ */
 public interface RepositorioDescuento extends JpaRepository<Descuento, Long> {
-
-    List<Descuento> findDescuentosByNombreContainsIgnoreCase(String nombre);
 
 }
