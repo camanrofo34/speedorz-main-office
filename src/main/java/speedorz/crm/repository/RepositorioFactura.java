@@ -2,7 +2,6 @@ package speedorz.crm.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import speedorz.crm.domain.entities.Descuento;
 import speedorz.crm.domain.entities.Factura;
 
 /**

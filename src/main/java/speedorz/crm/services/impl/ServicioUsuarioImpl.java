@@ -13,6 +13,8 @@ import speedorz.crm.services.ServicioUsuario;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementación del servicio {@link ServicioUsuario}.
@@ -22,6 +24,7 @@ import java.util.List;
 public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService {
 
     private final RepositorioUsuario repositorioUsuario;
+    private final Logger logger = Logger.getLogger(ServicioUsuarioImpl.class.getName());
 
     @Autowired
     public ServicioUsuarioImpl(RepositorioUsuario repositorioUsuario) {
@@ -30,46 +33,90 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
 
     @Override
     public Usuario crearUsuario(Usuario usuario) {
-        return repositorioUsuario.save(usuario);
+        try {
+            logger.log(Level.INFO, "Iniciando el usuario");
+            return repositorioUsuario.save(usuario);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al crear Usuario");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void actualizarUsuario(Usuario usuario) {
-        Usuario newUsuario = repositorioUsuario.findById(usuario.getIdUsuario()).orElseThrow();
-        newUsuario.setIdUsuario(usuario.getIdUsuario());
-        newUsuario.setNombreCompleto(usuario.getNombreCompleto());
-        newUsuario.setTelefono(usuario.getTelefono());
-        newUsuario.setDireccion(usuario.getDireccion());
-        newUsuario.setRol(usuario.getRol());
-        repositorioUsuario.save(usuario);
+        try {
+            logger.log(Level.INFO, "Actualizando el usuario {0}", usuario.getIdUsuario());
+            Usuario newUsuario = buscarUsuarioPorId(usuario.getIdUsuario());
+            newUsuario.setIdUsuario(usuario.getIdUsuario());
+            newUsuario.setNombreCompleto(usuario.getNombreCompleto());
+            newUsuario.setTelefono(usuario.getTelefono());
+            newUsuario.setDireccion(usuario.getDireccion());
+            newUsuario.setRol(usuario.getRol());
+            repositorioUsuario.save(usuario);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al actualizar Usuario");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void eliminarUsuario(Long id) {
-        repositorioUsuario.deleteById(id);
+        try {
+            logger.log(Level.INFO, "Eliminando el usuario {0}", id);
+            repositorioUsuario.deleteById(id);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al eliminar Usuario");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Usuario> listarUsuarios() {
-        return repositorioUsuario.findAll();
+        try {
+            logger.log(Level.INFO, "Listando Usuarios");
+            return repositorioUsuario.findAll();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al listar Usuarios");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Usuario buscarUsuarioPorId(Long id) {
-        return repositorioUsuario.findById(id).orElseThrow();
+        try {
+            logger.log(Level.INFO, "Buscando Usuario por ID {0}", id);
+            return repositorioUsuario.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al buscar Usuario por ID");
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public List<Usuario> buscarUsuarioPorNombreUsuario(String nombreUsuario) {
-        String nombreUsuarioBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombreUsuario);
-        return repositorioUsuario.findUsuariosByNombreCompletoContainsIgnoreCase(nombreUsuarioBusqueda);
+        try {
+            logger.log(Level.INFO, "Buscando Usuario por nombre de usuario {0}", nombreUsuario);
+            String nombreUsuarioBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombreUsuario);
+            return repositorioUsuario.findUsuariosByNombreCompletoContainsIgnoreCase(nombreUsuarioBusqueda);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al buscar Usuario por nombre de usuario");
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public void cambiarEstadoUsuario(Long id, String estado) {
-        Usuario usuario = repositorioUsuario.findById(id).orElseThrow();
-        usuario.setEstado(estado);
-        repositorioUsuario.save(usuario);
+        try {
+            logger.log(Level.INFO, "Cambiando el estado del usuario {0}", id);
+            Usuario usuario = buscarUsuarioPorId(id);
+            usuario.setEstado(estado);
+            repositorioUsuario.save(usuario);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al cambiar el estado del Usuario");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

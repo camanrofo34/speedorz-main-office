@@ -8,6 +8,8 @@ import speedorz.crm.services.ServicioVehiculo;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementación del servicio {@link ServicioVehiculo}.
@@ -17,6 +19,7 @@ import java.util.List;
 public class ServicioVehiculoImpl implements ServicioVehiculo {
 
     private final RepositorioVehiculo repositorioVehiculo;
+    private final Logger logger = Logger.getLogger(ServicioVehiculoImpl.class.getName());
 
     @Autowired
     public ServicioVehiculoImpl(RepositorioVehiculo repositorioVehiculo) {
@@ -25,40 +28,80 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
 
     @Override
     public Vehiculo crearVehiculo(Vehiculo vehiculo) {
-        return repositorioVehiculo.save(vehiculo);
+        try {
+            logger.log(Level.INFO, "Creando un vehiculo {0}", vehiculo.getNombre());
+            return repositorioVehiculo.save(vehiculo);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al crear vehiculo", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void actualizarVehiculo(Vehiculo vehiculo) {
-        Vehiculo newVehiculo = repositorioVehiculo.findById(vehiculo.getIdVehiculo()).orElseThrow();
-        newVehiculo.setIdVehiculo(vehiculo.getIdVehiculo());
-        newVehiculo.setNombre(vehiculo.getNombre());
-        newVehiculo.setMarca(vehiculo.getMarca());
-        newVehiculo.setModelo(vehiculo.getModelo());
-        newVehiculo.setDescripcion(vehiculo.getDescripcion());
-        newVehiculo.setPrecio(vehiculo.getPrecio());
-        newVehiculo.setStock(vehiculo.getStock());
-        repositorioVehiculo.save(vehiculo);
+        try {
+            logger.log(Level.INFO, "Actualizando vehiculo {0}", vehiculo.getNombre());
+            Vehiculo newVehiculo = repositorioVehiculo.findById(vehiculo.getIdVehiculo()).orElseThrow();
+            newVehiculo.setIdVehiculo(vehiculo.getIdVehiculo());
+            newVehiculo.setNombre(vehiculo.getNombre());
+            newVehiculo.setMarca(vehiculo.getMarca());
+            newVehiculo.setModelo(vehiculo.getModelo());
+            newVehiculo.setDescripcion(vehiculo.getDescripcion());
+            newVehiculo.setPrecio(vehiculo.getPrecio());
+            newVehiculo.setStock(vehiculo.getStock());
+            repositorioVehiculo.save(vehiculo);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al actualizar vehiculo", e);
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     @Override
     public void eliminarVehiculo(Long id) {
-        repositorioVehiculo.deleteById(id);
+        try {
+            logger.log(Level.INFO, "Eliminando vehiculo {0}", id);
+            repositorioVehiculo.deleteById(id);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al eliminar vehiculo", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Vehiculo> listarVehiculos() {
-        return repositorioVehiculo.findAll();
+        try {
+
+            logger.log(Level.INFO, "Listando vehiculos");
+            return repositorioVehiculo.findAll();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al listar vehiculos", e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public Vehiculo buscarVehiculoPorId(Long id) {
-        return repositorioVehiculo.findById(id).orElseThrow();
+        try {
+            logger.log(Level.INFO, "Buscando vehiculo {0}", id);
+            return repositorioVehiculo.findById(id).orElseThrow();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al buscar vehiculo", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Vehiculo> buscarVehiculosPorNombre(String nombre) {
-        String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
-        return repositorioVehiculo.findVehiculosByNombreContainsIgnoreCase(nombreBusqueda);
+        try {
+            logger.log(Level.INFO, "Buscando vehiculo por nombre {0}", nombre);
+            String nombreBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombre);
+            return repositorioVehiculo.findVehiculosByNombreContainsIgnoreCase(nombreBusqueda);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al buscar vehiculo por nombre", e);
+            throw new RuntimeException(e);
+        }
     }
 }

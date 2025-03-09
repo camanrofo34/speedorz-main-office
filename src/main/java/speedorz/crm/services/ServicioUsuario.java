@@ -1,6 +1,7 @@
 package speedorz.crm.services;
 
 import speedorz.crm.domain.entities.Usuario;
+
 import java.util.List;
 
 /**

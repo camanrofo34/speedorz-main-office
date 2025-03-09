@@ -1,7 +1,6 @@
 package speedorz.crm.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import speedorz.crm.domain.entities.Usuario;
 import speedorz.crm.domain.entities.Vehiculo;
 
 import java.util.List;
