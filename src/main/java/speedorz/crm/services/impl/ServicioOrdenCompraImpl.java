@@ -27,6 +27,7 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
     private final RepositorioOrdenVehiculo repositorioOrdenVehiculo;
     private final RepositorioImpuesto repositorioImpuesto;
     private final RepositorioDescuento repositorioDescuento;
+    private final RepositorioMovimientoInventario repositorioMovimientoInventario;
 
     private final Logger logger = Logger.getLogger(ServicioOrdenCompraImpl.class.getName());
 
@@ -37,7 +38,8 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                                    RepositorioVehiculo repositorioVehiculo,
                                    RepositorioOrdenVehiculo repositorioOrdenVehiculo,
                                    RepositorioImpuesto repositorioImpuesto,
-                                   RepositorioDescuento repositorioDescuento) {
+                                   RepositorioDescuento repositorioDescuento,
+                                   RepositorioMovimientoInventario repositorioMovimientoInventario) {
         this.repositorioOrdenCompra = repositorioOrdenCompra;
         this.repositorioUsuario = repositorioUsuario;
         this.repositorioCliente = repositorioCliente;
@@ -45,6 +47,7 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
         this.repositorioOrdenVehiculo = repositorioOrdenVehiculo;
         this.repositorioImpuesto = repositorioImpuesto;
         this.repositorioDescuento = repositorioDescuento;
+        this.repositorioMovimientoInventario = repositorioMovimientoInventario;
     }
 
     @Override
@@ -85,6 +88,12 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                 } else {
                     vehiculo.setStock(vehiculo.getStock() - v.getCantidad());
                     repositorioVehiculo.save(vehiculo);
+                    MovimientoInventario movimientoInventario = new MovimientoInventario();
+                    movimientoInventario.setVehiculo(vehiculo);
+                    movimientoInventario.setCantidad(v.getCantidad());
+                    movimientoInventario.setTipoMovimiento("Salida");
+                    movimientoInventario.setFecha(ordenCompra.getFecha());
+                    repositorioMovimientoInventario.save(movimientoInventario);
                 }
                 // Calcular subtotal final
                 double subtotalVehiculo = v.getCantidad() * vehiculo.getPrecio();

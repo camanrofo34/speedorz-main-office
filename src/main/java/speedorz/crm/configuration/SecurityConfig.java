@@ -67,7 +67,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
                 .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF (innecesario con JWT)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/autenticacion/**", "/promocion").permitAll() // Endpoints públicos
+                        .requestMatchers("/autenticacion/**", "/promocion", "/reportes/**").permitAll() // Endpoints públicos
                         .anyRequest().authenticated() // Todo lo demás requiere autenticación
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
