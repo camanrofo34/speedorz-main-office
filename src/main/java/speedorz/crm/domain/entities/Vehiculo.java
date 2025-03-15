@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 /**
  * Clase que representa un vehículo en el sistema CRM.
  */
@@ -59,5 +61,5 @@ public class Vehiculo {
      * Precio del vehículo.
      */
     @Column(nullable = false)
-    private double precio;
+    private BigDecimal precio;
 }

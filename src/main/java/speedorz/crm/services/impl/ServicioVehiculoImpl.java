@@ -2,8 +2,10 @@ package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import speedorz.crm.domain.entities.HistorialPrecio;
 import speedorz.crm.domain.entities.MovimientoInventario;
 import speedorz.crm.domain.entities.Vehiculo;
+import speedorz.crm.repository.RepositorioHistorialPrecio;
 import speedorz.crm.repository.RepositorioMovimientoInventario;
 import speedorz.crm.repository.RepositorioVehiculo;
 import speedorz.crm.services.ServicioVehiculo;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,12 +28,17 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
 
     private final RepositorioVehiculo repositorioVehiculo;
     private final RepositorioMovimientoInventario repositorioMovimientoInventario;
+    private final RepositorioHistorialPrecio repositorioHistorialPrecio;
     private final Logger logger = Logger.getLogger(ServicioVehiculoImpl.class.getName());
 
     @Autowired
-    public ServicioVehiculoImpl(RepositorioVehiculo repositorioVehiculo, RepositorioMovimientoInventario repositorioMovimientoInventario) {
+    public ServicioVehiculoImpl(
+            RepositorioVehiculo repositorioVehiculo,
+            RepositorioMovimientoInventario repositorioMovimientoInventario,
+            RepositorioHistorialPrecio repositorioHistorialPrecio) {
         this.repositorioVehiculo = repositorioVehiculo;
         this.repositorioMovimientoInventario = repositorioMovimientoInventario;
+        this.repositorioHistorialPrecio = repositorioHistorialPrecio;
     }
 
     @Override
@@ -44,6 +52,11 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
             movimientoInventario.setTipoMovimiento("Entrada");
             movimientoInventario.setFecha(ZonedDateTime.now(ZoneId.of("America/Bogota")).toLocalDateTime());
             repositorioMovimientoInventario.save(movimientoInventario);
+            HistorialPrecio historialPrecio = new HistorialPrecio();
+            historialPrecio.setVehiculo(respuesta);
+            historialPrecio.setPrecio(respuesta.getPrecio());
+            historialPrecio.setFechaRegistro(LocalDateTime.now());
+            repositorioHistorialPrecio.save(historialPrecio);
             return respuesta;
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error al crear vehiculo", e);
@@ -76,6 +89,13 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
                 movimientoInventario.setTipoMovimiento("Salida");
                 movimientoInventario.setFecha(ZonedDateTime.now(ZoneId.of("America/Bogota")).toLocalDateTime());
                 repositorioMovimientoInventario.save(movimientoInventario);
+            }
+            if (!Objects.equals(vehiculo.getPrecio(), newVehiculo.getPrecio())) {
+                HistorialPrecio historialPrecio = new HistorialPrecio();
+                historialPrecio.setVehiculo(newVehiculo);
+                historialPrecio.setPrecio(vehiculo.getPrecio());
+                historialPrecio.setFechaRegistro(LocalDateTime.now());
+                repositorioHistorialPrecio.save(historialPrecio);
             }
             newVehiculo.setStock(vehiculo.getStock());
             repositorioVehiculo.save(vehiculo);

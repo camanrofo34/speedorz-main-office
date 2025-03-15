@@ -34,5 +34,43 @@ public class ControladorInventario {
         }
     }
 
+    @GetMapping("/pedidos")
+    public ResponseEntity<byte[]> generarReportePedidos() {
+        try{
+            byte[] reporte = servicioInventario.generarReportePedidos();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-pedidos.pdf")
+                    .body(reporte);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/ventas")
+    public ResponseEntity<byte[]> generarReporteVentas() {
+        try{
+            byte[] reporte = servicioInventario.generarReportePerdidasYGanancias();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-ventas.pdf")
+                    .body(reporte);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/historico")
+    public ResponseEntity<byte[]> generarHistoricoPrecios() {
+        try{
+            byte[] reporte = servicioInventario.generarHistoricoPrecios();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=historico-precios.pdf")
+                    .body(reporte);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 }
