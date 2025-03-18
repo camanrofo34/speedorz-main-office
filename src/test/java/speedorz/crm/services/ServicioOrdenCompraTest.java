@@ -50,7 +50,7 @@ class ServicioOrdenCompraTest {
         Cliente cliente = new Cliente();
         Vehiculo vehiculo = new Vehiculo();
         vehiculo.setIdVehiculo(1L);
-        vehiculo.setPrecio(100.0);
+        vehiculo.setPrecio(BigDecimal.valueOf(100.0));
         vehiculo.setStock(10);
         OrdenCompraDTO.OrdenVehiculoDTO ordenVehiculo = new OrdenCompraDTO.OrdenVehiculoDTO();
         ordenVehiculo.setIdVehiculo(1L);
@@ -78,7 +78,7 @@ class ServicioOrdenCompraTest {
         Usuario usuario = new Usuario();
         Cliente cliente = new Cliente();
         Vehiculo vehiculo = new Vehiculo();
-        vehiculo.setPrecio(100.0);
+        vehiculo.setPrecio(BigDecimal.valueOf(100.0));
         vehiculo.setStock(0);
         OrdenCompraDTO.OrdenVehiculoDTO ordenVehiculo = new OrdenCompraDTO.OrdenVehiculoDTO();
         ordenVehiculo.setCantidad(1);
