@@ -2,9 +2,18 @@ package speedorz.crm.services.impl;
 
 
 import com.itextpdf.text.*;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.jfree.chart.labels.ItemLabelAnchor;
+import org.jfree.chart.labels.ItemLabelPosition;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.ui.TextAnchor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import speedorz.crm.domain.entities.Factura;
@@ -22,6 +31,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -213,11 +223,63 @@ public class ServicioInventarioImpl implements ServicioInventario {
                             false
                     );
 
+// Configuración de la apariencia del gráfico
+                    CategoryPlot plot = chart.getCategoryPlot();
+                    plot.setBackgroundPaint(Color.WHITE); // Fondo blanco
+                    plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+                    plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+
+// Obtener valores mínimo y máximo del dataset para ajustar la escala del eje Y
+                    double minValue = Double.MAX_VALUE;
+                    double maxValue = Double.MIN_VALUE;
+                    for (HistorialPrecio historial : historialPrecios) {
+                        double precio = historial.getPrecio().doubleValue();
+                        if (precio < minValue) minValue = precio;
+                        if (precio > maxValue) maxValue = precio;
+                    }
+
+// Ajustar la escala del eje Y con margen superior
+                    double margen = (maxValue - minValue) * 0.15; // Un 15% de margen superior
+                    if (margen == 0) margen = maxValue * 0.10; // Evitar margen 0 si todos los valores son iguales
+                    plot.getRangeAxis().setRange(minValue - margen, maxValue + margen);
+
+// Resaltar los puntos del gráfico
+                    LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+                    renderer.setSeriesShapesVisible(0, true); // Hacer visibles los puntos
+                    renderer.setSeriesPaint(0, Color.BLUE); // Color de la línea
+                    renderer.setSeriesStroke(0, new BasicStroke(2.0f)); // Grosor de la línea
+                    renderer.setSeriesShapesFilled(0, true); // Rellenar los puntos
+
+// Agregar etiquetas con los valores exactos sobre los puntos, ajustando su posición
+                    renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator() {
+                        @Override
+                        public String generateLabel(CategoryDataset dataset, int row, int column) {
+                            return dataset.getValue(row, column).toString();
+                        }
+                    });
+                    renderer.setBaseItemLabelsVisible(true);
+                    renderer.setBaseItemLabelPaint(Color.BLACK); // Color del texto
+
+// Ajustar la posición de las etiquetas para mejorar visibilidad
+                    for (int i = 0; i < historialPrecios.size(); i++) {
+                        ItemLabelPosition position;
+                        if (i % 2 == 0) {
+                            position = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER);
+                        } else {
+                            position = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE6, TextAnchor.TOP_CENTER);
+                        }
+                        renderer.setSeriesPositiveItemLabelPosition(0, position);
+                    }
+
+                    plot.setRenderer(renderer);
+
+// Generar imagen del gráfico
                     ByteArrayOutputStream chartBaos = new ByteArrayOutputStream();
                     ChartUtilities.writeChartAsPNG(chartBaos, chart, 500, 300);
                     Image chartImage = Image.getInstance(chartBaos.toByteArray());
                     chartImage.scaleToFit(500, 300);
                     document.add(chartImage);
+
                 }
                 document.add(new Paragraph("\n"));
             }

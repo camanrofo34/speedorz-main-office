@@ -11,6 +11,7 @@ import speedorz.crm.repository.RepositorioVehiculo;
 import speedorz.crm.services.ServicioVehiculo;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -69,20 +70,22 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
         try {
             logger.log(Level.INFO, "Actualizando vehiculo {0}", vehiculo.getNombre());
             Vehiculo newVehiculo = repositorioVehiculo.findById(vehiculo.getIdVehiculo()).orElseThrow();
+            int stockActual = newVehiculo.getStock();
+            BigDecimal precioActual = newVehiculo.getPrecio();
             newVehiculo.setIdVehiculo(vehiculo.getIdVehiculo());
             newVehiculo.setNombre(vehiculo.getNombre());
             newVehiculo.setMarca(vehiculo.getMarca());
             newVehiculo.setModelo(vehiculo.getModelo());
             newVehiculo.setDescripcion(vehiculo.getDescripcion());
             newVehiculo.setPrecio(vehiculo.getPrecio());
-            if (vehiculo.getStock() > newVehiculo.getStock()) {
+            if (newVehiculo.getStock() > stockActual) {
                 MovimientoInventario movimientoInventario = new MovimientoInventario();
                 movimientoInventario.setVehiculo(newVehiculo);
                 movimientoInventario.setCantidad(vehiculo.getStock() - newVehiculo.getStock());
                 movimientoInventario.setTipoMovimiento("Entrada");
                 movimientoInventario.setFecha(ZonedDateTime.now(ZoneId.of("America/Bogota")).toLocalDateTime());
                 repositorioMovimientoInventario.save(movimientoInventario);
-            } else if (vehiculo.getStock() < newVehiculo.getStock()) {
+            } else if (newVehiculo.getStock() < stockActual) {
                 MovimientoInventario movimientoInventario = new MovimientoInventario();
                 movimientoInventario.setVehiculo(newVehiculo);
                 movimientoInventario.setCantidad(newVehiculo.getStock() - vehiculo.getStock());
@@ -90,7 +93,7 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
                 movimientoInventario.setFecha(ZonedDateTime.now(ZoneId.of("America/Bogota")).toLocalDateTime());
                 repositorioMovimientoInventario.save(movimientoInventario);
             }
-            if (!Objects.equals(vehiculo.getPrecio(), newVehiculo.getPrecio())) {
+            if (!Objects.equals(precioActual, newVehiculo.getPrecio())) {
                 HistorialPrecio historialPrecio = new HistorialPrecio();
                 historialPrecio.setVehiculo(newVehiculo);
                 historialPrecio.setPrecio(vehiculo.getPrecio());

@@ -67,7 +67,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
                 .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF (innecesario con JWT)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/autenticacion/**", "/vehiculos-promocion", "/reportes/**").permitAll() // Endpoints públicos
+                        .requestMatchers("/autenticacion/**", "/vehiculos-promocion/**", "/reportes/**").permitAll() // Endpoints públicos
                         .anyRequest().authenticated() // Todo lo demás requiere autenticación
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado
@@ -135,7 +135,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Permitir frontend de Angular
+        configuration.setAllowedOrigins(List.of("http://localhost:4200",
+                "http://speedorz.bucaramanga.upb.edu.co")); // Permitir frontend de Angular
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Métodos HTTP permitidos
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Cabeceras permitidas
         configuration.setAllowCredentials(true); // Permitir credenciales como JWT

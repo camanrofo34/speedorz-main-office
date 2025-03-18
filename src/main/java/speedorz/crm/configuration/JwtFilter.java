@@ -63,7 +63,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String requestPath = request.getServletPath();
 
         // Excluir de la autenticación las rutas de autenticación y promociones
-        if (requestPath.startsWith("/autenticacion") || requestPath.startsWith("/promocion")) {
+        if (requestPath.startsWith("/autenticacion") || requestPath.startsWith("/vehiculos-promocion")) {
             chain.doFilter(request, response);
             return;
         }

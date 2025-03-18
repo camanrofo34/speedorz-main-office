@@ -82,7 +82,7 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                 ordenVehiculo.setOrdenCompra(finalNuevaOrdenCompra);
                 ordenVehiculo.setVehiculo(vehiculo);
                 ordenVehiculo.setCantidad(v.getCantidad());
-                ordenVehiculo.setPrecioUnitario(BigDecimal.valueOf(vehiculo.getPrecio()));
+                ordenVehiculo.setPrecioUnitario(vehiculo.getPrecio());
                 if (v.getCantidad() > vehiculo.getStock()) {
                     throw new RuntimeException("No hay suficiente stock para el vehículo " + vehiculo.getNombre());
                 } else {
@@ -96,7 +96,7 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                     repositorioMovimientoInventario.save(movimientoInventario);
                 }
                 // Calcular subtotal final
-                double subtotalVehiculo = v.getCantidad() * vehiculo.getPrecio();
+                double subtotalVehiculo = v.getCantidad() * vehiculo.getPrecio().doubleValue();
                 subtotal[0] += subtotalVehiculo;
                 ordenVehiculo.setSubtotal(BigDecimal.valueOf(subtotalVehiculo));
                 // Aplicar descuentos
