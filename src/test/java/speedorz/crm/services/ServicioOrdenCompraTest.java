@@ -31,9 +31,11 @@ class ServicioOrdenCompraTest {
     @Mock
     private RepositorioOrdenVehiculo repositorioOrdenVehiculo;
     @Mock
-    private RepositorioImpuesto repositorioImpuesto;
+    private RepositorioMovimientoInventario repositorioMovimientoInventario;
     @Mock
     private RepositorioDescuento repositorioDescuento;
+    @Mock
+    private RepositorioImpuesto repositorioImpuesto;
 
     @InjectMocks
     private ServicioOrdenCompraImpl servicioOrdenCompra;
@@ -64,6 +66,7 @@ class ServicioOrdenCompraTest {
         when(repositorioVehiculo.findById(anyLong())).thenReturn(Optional.of(vehiculo));
         when(repositorioOrdenCompra.save(any(OrdenCompra.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repositorioOrdenVehiculo.saveAll(anyList())).thenReturn(null);
+        when(repositorioMovimientoInventario.saveAll(anyList())).thenReturn(null);
 
         OrdenCompra result = servicioOrdenCompra.plantarOrdenCompra(ordenCompraDTO);
 

@@ -6,6 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import speedorz.crm.domain.entities.Vehiculo;
+import speedorz.crm.repository.RepositorioHistorialPrecio;
+import speedorz.crm.repository.RepositorioMovimientoInventario;
 import speedorz.crm.repository.RepositorioVehiculo;
 import speedorz.crm.services.impl.ServicioVehiculoImpl;
 
@@ -21,6 +23,12 @@ class ServicioVehiculoTest {
     @Mock
     private RepositorioVehiculo repositorioVehiculo;
 
+    @Mock
+    private RepositorioMovimientoInventario repositorioMovimientoInventario;
+
+    @Mock
+    private RepositorioHistorialPrecio repositorioHistorialPrecio;
+
     @InjectMocks
     private ServicioVehiculoImpl servicioVehiculo;
 
@@ -33,7 +41,6 @@ class ServicioVehiculoTest {
     void crearVehiculo_createsAndReturnsVehiculo() {
         Vehiculo vehiculo = new Vehiculo();
         when(repositorioVehiculo.save(vehiculo)).thenReturn(vehiculo);
-
         Vehiculo result = servicioVehiculo.crearVehiculo(vehiculo);
 
         assertEquals(vehiculo, result);
