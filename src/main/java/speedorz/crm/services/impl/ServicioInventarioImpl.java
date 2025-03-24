@@ -291,6 +291,67 @@ public class ServicioInventarioImpl implements ServicioInventario {
         }
     }
 
+    @Override
+    public byte[] generarReporteCuentasPorCobrar() throws IOException {
+        List<OrdenCompra> cuentasPorCobrar = repositorioOrdenCompra.findCuentasPorCobrar();
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Logo
+            String logoPath = "src/main/resources/speedorz_logo.jpg";
+            Image logo = Image.getInstance(logoPath);
+            logo.scaleToFit(100, 100);
+            logo.setAlignment(Element.ALIGN_RIGHT);
+            document.add(logo);
+
+            // Título
+            Paragraph title = new Paragraph("Informe de Cuentas por Cobrar", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            document.add(new Paragraph("\n"));
+
+            // Fecha
+            Paragraph date = new Paragraph("Fecha: " + LocalDate.now(), new Font(Font.FontFamily.HELVETICA, 12));
+            date.setAlignment(Element.ALIGN_RIGHT);
+            document.add(date);
+
+            document.add(new Paragraph("\n"));
+
+            // Tabla con datos de las órdenes de compra sin factura
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Encabezados
+            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+            table.addCell(new PdfPCell(new Phrase("ID Orden", headerFont)));
+            table.addCell(new PdfPCell(new Phrase("Fecha", headerFont)));
+            table.addCell(new PdfPCell(new Phrase("Cliente", headerFont)));
+            table.addCell(new PdfPCell(new Phrase("Total", headerFont)));
+
+            // Datos
+            for (OrdenCompra orden : cuentasPorCobrar) {
+                table.addCell(String.valueOf(orden.getIdOrdenCompra()));
+                table.addCell(orden.getFecha().toString());
+                table.addCell(orden.getCliente().getNombreLegal());
+                table.addCell("$" + orden.getTotal().toString());
+            }
+
+            document.add(table);
+
+            document.close();
+            return baos.toByteArray();
+        } catch (DocumentException e) {
+            throw new IOException("Error al generar el reporte PDF", e);
+        }
+    }
+
+
 
     @Override
     public byte[] generarReportePerdidasYGanancias() throws IOException {
@@ -340,6 +401,7 @@ public class ServicioInventarioImpl implements ServicioInventario {
             throw new IOException("Error al generar el reporte PDF", e);
         }
     }
+
 
 
 }

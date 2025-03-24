@@ -73,4 +73,17 @@ public class ControladorInventario {
         }
     }
 
+    @GetMapping("/cuentas-por-cobrar")
+    public ResponseEntity<byte[]> generarReporteCuentasPorCobrar() {
+        try{
+            byte[] reporte = servicioInventario.generarReporteCuentasPorCobrar();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-cuentas-por-cobrar.pdf")
+                    .body(reporte);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

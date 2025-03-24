@@ -12,4 +12,6 @@ public interface ServicioInventario {
 
     byte[] generarHistoricoPrecios() throws IOException;
 
+    byte[] generarReporteCuentasPorCobrar() throws IOException;
+
 }
