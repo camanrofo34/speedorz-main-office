@@ -16,14 +16,8 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.TextAnchor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import speedorz.crm.domain.entities.Factura;
-import speedorz.crm.domain.entities.HistorialPrecio;
-import speedorz.crm.domain.entities.OrdenCompra;
-import speedorz.crm.domain.entities.Vehiculo;
-import speedorz.crm.repository.RepositorioFactura;
-import speedorz.crm.repository.RepositorioHistorialPrecio;
-import speedorz.crm.repository.RepositorioOrdenCompra;
-import speedorz.crm.repository.RepositorioVehiculo;
+import speedorz.crm.domain.entities.*;
+import speedorz.crm.repository.*;
 import speedorz.crm.services.ServicioInventario;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -33,6 +27,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -44,13 +39,19 @@ public class ServicioInventarioImpl implements ServicioInventario {
     private final RepositorioFactura repositorioFactura;
     private  final RepositorioOrdenCompra repositorioOrdenCompra;
     private final RepositorioHistorialPrecio repositorioHistorialPrecio;
+    private final RepositorioMovimientoInventario repositorioMovimientoInventario;
 
     @Autowired
-    public ServicioInventarioImpl(RepositorioVehiculo repositorioVehiculo, RepositorioFactura repositorioFactura, RepositorioOrdenCompra repositorioOrdenCompra, RepositorioHistorialPrecio repositorioHistorialPrecio) {
+    public ServicioInventarioImpl(RepositorioVehiculo repositorioVehiculo,
+                                  RepositorioFactura repositorioFactura,
+                                  RepositorioOrdenCompra repositorioOrdenCompra,
+                                  RepositorioHistorialPrecio repositorioHistorialPrecio,
+                                  RepositorioMovimientoInventario repositorioMovimientoInventario) {
         this.repositorioVehiculo = repositorioVehiculo;
         this.repositorioFactura = repositorioFactura;
         this.repositorioOrdenCompra = repositorioOrdenCompra;
         this.repositorioHistorialPrecio = repositorioHistorialPrecio;
+        this.repositorioMovimientoInventario = repositorioMovimientoInventario;
     }
 
     @Override
@@ -386,6 +387,7 @@ public class ServicioInventarioImpl implements ServicioInventario {
 
             document.add(new Paragraph("Reporte de Pérdidas y Ganancias"));
             document.add(new Paragraph("Facturas Pagas:"));
+
             for (Factura factura : facturasPagas) {
                 document.add(new Paragraph("Factura ID: " + factura.getId() + ", Empresa: " + factura.getNombreEmpresa() + ", Total: " + factura.getOrdenCompra().getTotal()));
             }
@@ -401,6 +403,79 @@ public class ServicioInventarioImpl implements ServicioInventario {
             throw new IOException("Error al generar el reporte PDF", e);
         }
     }
+
+    @Override
+    public byte[] generarReporteMovimientoInventario() throws IOException {
+        List<MovimientoInventario> movimientos = repositorioMovimientoInventario.findAll();
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Verificar existencia del logo antes de cargarlo
+            String logoPath = "src/main/resources/speedorz_logo.jpg";
+            File logoFile = new File(logoPath);
+            if (logoFile.exists()) {
+                Image logo = Image.getInstance(logoPath);
+                logo.scaleToFit(100, 100);
+                logo.setAlignment(Element.ALIGN_RIGHT);
+                document.add(logo);
+            }
+
+            // Título
+            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+            Paragraph title = new Paragraph("Informe de Movimiento de Inventario", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            document.add(new Paragraph("\n"));
+
+            // Fecha
+            Font dateFont = new Font(Font.FontFamily.HELVETICA, 12);
+            Paragraph date = new Paragraph("Fecha: " + LocalDate.now(), dateFont);
+            date.setAlignment(Element.ALIGN_RIGHT);
+            document.add(date);
+
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("Reporte de Movimiento de Inventario"));
+
+            // Tabla con datos de los movimientos de inventario
+            PdfPTable table = new PdfPTable(5);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Encabezados con formato
+            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+            String[] headers = {"Movimiento Id", "Tipo", "Fecha", "Cantidad", "Vehículo"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(5);
+                table.addCell(cell);
+            }
+
+            // Datos de la tabla
+            Font dataFont = new Font(Font.FontFamily.HELVETICA, 12);
+            for (MovimientoInventario movimiento : movimientos) {
+                table.addCell(new PdfPCell(new Phrase(String.valueOf(movimiento.getId()), dataFont)));
+                table.addCell(new PdfPCell(new Phrase(movimiento.getTipoMovimiento(), dataFont)));
+                table.addCell(new PdfPCell(new Phrase(movimiento.getFecha().toString(), dataFont)));
+                table.addCell(new PdfPCell(new Phrase(String.valueOf(movimiento.getCantidad()), dataFont)));
+                table.addCell(new PdfPCell(new Phrase(movimiento.getVehiculo().getNombre(), dataFont)));
+            }
+
+            // Se agrega la tabla al documento
+            document.add(table);
+            document.close();
+
+            return baos.toByteArray();
+        } catch (DocumentException e) {
+            throw new IOException("Error al generar el reporte PDF", e);
+        }
+    }
+
 
 
 

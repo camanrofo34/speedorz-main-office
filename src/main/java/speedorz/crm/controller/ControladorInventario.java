@@ -86,4 +86,17 @@ public class ControladorInventario {
         }
     }
 
+    @GetMapping("/movimiento-inventario")
+    public ResponseEntity<byte[]> generarReporteMovimientoInventario() {
+        try{
+            byte[] reporte = servicioInventario.generarReporteMovimientoInventario();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-movimiento-inventario.pdf")
+                    .body(reporte);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

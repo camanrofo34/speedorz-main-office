@@ -14,4 +14,6 @@ public interface ServicioInventario {
 
     byte[] generarReporteCuentasPorCobrar() throws IOException;
 
+    byte[] generarReporteMovimientoInventario() throws IOException;
+
 }
