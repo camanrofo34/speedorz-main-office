@@ -32,6 +32,10 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Implementación del servicio de inventario {@link ServicioInventario}.
+ * Proporciona métodos para generar reportes de inventario, pedidos, historial de precios, cuentas por cobrar y movimiento de inventario.
+ */
 @Service
 public class ServicioInventarioImpl implements ServicioInventario {
 

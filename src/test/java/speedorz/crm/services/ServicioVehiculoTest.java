@@ -11,6 +11,7 @@ import speedorz.crm.repository.RepositorioMovimientoInventario;
 import speedorz.crm.repository.RepositorioVehiculo;
 import speedorz.crm.services.impl.ServicioVehiculoImpl;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,7 @@ class ServicioVehiculoTest {
     void actualizarVehiculo_updatesExistingVehiculo() {
         Vehiculo vehiculo = new Vehiculo();
         vehiculo.setIdVehiculo(1L);
+        vehiculo.setPrecio(BigDecimal.ONE);
         when(repositorioVehiculo.findById(1L)).thenReturn(Optional.of(vehiculo));
 
         servicioVehiculo.actualizarVehiculo(vehiculo);
