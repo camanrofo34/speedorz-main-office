@@ -43,7 +43,7 @@ public class ServicioDescuentoImpl implements ServicioDescuento {
             logger.log(Level.INFO, "Actualizando Descuento {0}", descuento.getNombre());
             Descuento newDescuento = repositorioDescuento.findById(descuento.getId()).orElseThrow();
             newDescuento.setNombre(descuento.getNombre());
-            newDescuento.setPorcentaje(descuento.getPorcentaje());
+            newDescuento.setDescripcion(descuento.getDescripcion());
             newDescuento.setPorcentaje(descuento.getPorcentaje());
             repositorioDescuento.save(newDescuento);
         } catch (Exception e) {

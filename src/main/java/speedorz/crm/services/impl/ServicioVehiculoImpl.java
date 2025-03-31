@@ -72,35 +72,37 @@ public class ServicioVehiculoImpl implements ServicioVehiculo {
             Vehiculo newVehiculo = repositorioVehiculo.findById(vehiculo.getIdVehiculo()).orElseThrow();
             int stockActual = newVehiculo.getStock();
             BigDecimal precioActual = newVehiculo.getPrecio();
+
             newVehiculo.setIdVehiculo(vehiculo.getIdVehiculo());
             newVehiculo.setNombre(vehiculo.getNombre());
             newVehiculo.setMarca(vehiculo.getMarca());
             newVehiculo.setModelo(vehiculo.getModelo());
             newVehiculo.setDescripcion(vehiculo.getDescripcion());
             newVehiculo.setPrecio(vehiculo.getPrecio());
+            newVehiculo.setStock(vehiculo.getStock());
+
             if (newVehiculo.getStock() > stockActual) {
                 MovimientoInventario movimientoInventario = new MovimientoInventario();
                 movimientoInventario.setVehiculo(newVehiculo);
-                movimientoInventario.setCantidad(vehiculo.getStock() - newVehiculo.getStock());
+                movimientoInventario.setCantidad(vehiculo.getStock() - stockActual);
                 movimientoInventario.setTipoMovimiento("Entrada");
                 movimientoInventario.setFecha(ZonedDateTime.now(ZoneId.of("America/Bogota")).toLocalDateTime());
                 repositorioMovimientoInventario.save(movimientoInventario);
             } else if (newVehiculo.getStock() < stockActual) {
                 MovimientoInventario movimientoInventario = new MovimientoInventario();
                 movimientoInventario.setVehiculo(newVehiculo);
-                movimientoInventario.setCantidad(newVehiculo.getStock() - vehiculo.getStock());
+                movimientoInventario.setCantidad(stockActual - newVehiculo.getStock());
                 movimientoInventario.setTipoMovimiento("Salida");
                 movimientoInventario.setFecha(ZonedDateTime.now(ZoneId.of("America/Bogota")).toLocalDateTime());
                 repositorioMovimientoInventario.save(movimientoInventario);
             }
-            if (!Objects.equals(precioActual, newVehiculo.getPrecio())) {
+            if (!precioActual.equals(newVehiculo.getPrecio())) {
                 HistorialPrecio historialPrecio = new HistorialPrecio();
                 historialPrecio.setVehiculo(newVehiculo);
                 historialPrecio.setPrecio(vehiculo.getPrecio());
                 historialPrecio.setFechaRegistro(LocalDateTime.now());
                 repositorioHistorialPrecio.save(historialPrecio);
             }
-            newVehiculo.setStock(vehiculo.getStock());
             repositorioVehiculo.save(vehiculo);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error al actualizar vehiculo", e);

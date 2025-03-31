@@ -13,7 +13,12 @@ import java.util.Optional;
 
 /**
  * Controlador para la gestión de vehículos.
- * Proporciona endpoints para CRUD y búsqueda de vehículos.
+ * <p>
+ *     Proporciona endpoints para CRUD y búsqueda de vehículos.
+ * </p>
+ *
+ * @author Camilo
+ * @version 1.0
  */
 @RestController
 @RequestMapping("/vehiculos")
@@ -28,7 +33,13 @@ public class ControladorVehiculo {
 
     /**
      * Crea un nuevo vehículo.
-     * Solo puede ser ejecutado por usuarios con el rol de ADMININVENTARIO.
+     * <p>
+     *     Solo accesible para usuarios con el rol "ADMININVENTARIO".
+     *     Retorna el vehículo creado con estado HTTP 201 (CREATED).
+     *     Si el vehículo no se puede crear, retorna estado HTTP 400 (BAD REQUEST).
+     * </p>
+     *
+     * @return `ResponseEntity<Vehiculo>` con el vehículo creado y estado HTTP 201 (CREATED).
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMININVENTARIO')")
@@ -39,6 +50,14 @@ public class ControladorVehiculo {
 
     /**
      * Lista todos los vehículos disponibles.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMININVENTARIO".
+     *     Retorna una lista de vehículos con estado HTTP 200 (OK).
+     *     Si no hay vehículos registrados, retorna estado HTTP 204 (NO CONTENT).
+     * </p>
+     *
+     * @return `ResponseEntity<List<Vehiculo>>` con la lista de vehículos y estado HTTP 200 (OK).
      */
     @GetMapping
     public ResponseEntity<List<Vehiculo>> listarVehiculos() {
@@ -51,6 +70,14 @@ public class ControladorVehiculo {
 
     /**
      * Busca un vehículo por su ID.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMININVENTARIO".
+     *     Retorna el vehículo encontrado con estado HTTP 200 (OK).
+     *     Si no se encuentra el vehículo, retorna estado HTTP 404 (NOT FOUND).
+     * </p>
+     *
+     * @return `ResponseEntity<Vehiculo>` con el vehículo encontrado y estado HTTP 200 (OK).
      */
     @GetMapping("/{id}")
     public ResponseEntity<Vehiculo> buscarVehiculoPorId(@PathVariable Long id) {
@@ -61,6 +88,14 @@ public class ControladorVehiculo {
 
     /**
      * Busca vehículos por nombre.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMININVENTARIO".
+     *     Retorna una lista de vehículos con estado HTTP 200 (OK).
+     *     Si no se encuentran vehículos, retorna estado HTTP 204 (NO CONTENT).
+     * </p>
+     *
+     * @return `ResponseEntity<List<Vehiculo>>` con la lista de vehículos y estado HTTP 200 (OK).
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<Vehiculo>> buscarVehiculoPorNombre(@RequestParam String nombre) {
@@ -73,6 +108,15 @@ public class ControladorVehiculo {
 
     /**
      * Actualiza la información de un vehículo.
+     *
+     * <p>
+     *     Solo accesible para usuarios con el rol "ADMININVENTARIO".
+     *     Retorna estado HTTP 200 (OK) si la actualización fue exitosa.
+     *     Si los IDs no coinciden, retorna estado HTTP 400 (BAD REQUEST).
+     *     Si el vehículo no existe, retorna estado HTTP 404 (NOT FOUND).
+     * </p>
+     *
+     * @return `ResponseEntity<Void>` con estado HTTP 200 (OK) si la actualización fue exitosa.
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMININVENTARIO')")
@@ -89,6 +133,15 @@ public class ControladorVehiculo {
 
     /**
      * Elimina un vehículo por su ID.
+     *
+     * <p>
+     *     Solo accesible para usuarios con el rol "ADMININVENTARIO".
+     *     Retorna estado HTTP 204 (NO CONTENT) si la eliminación fue exitosa.
+     *     Si el vehículo no existe, retorna estado HTTP 404 (NOT FOUND).
+     *     Si el vehículo no se puede eliminar, retorna estado HTTP 400 (BAD REQUEST).
+     * </p>
+     *
+     * @return `ResponseEntity<Void>` con estado HTTP 204 (NO CONTENT) si la eliminación fue exitosa.
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMININVENTARIO')")

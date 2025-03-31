@@ -14,7 +14,12 @@ import java.util.Optional;
 
 /**
  * Controlador para la gestión de usuarios.
- * Proporciona endpoints para CRUD y gestión de estados de usuarios.
+ * <p>
+ *     Proporciona endpoints para CRUD y gestión de estados de usuarios.
+ * </p>
+ *
+ * @author Camilo
+ * @version 1.0
  */
 @RestController
 @RequestMapping("/usuarios")
@@ -30,8 +35,15 @@ public class ControladorUsuario {
     }
 
     /**
-     * Crea un nuevo usuario con la contraseña encriptada.
-     * Solo los administradores de usuarios pueden ejecutar esta acción.
+     * Crea un nuevo usuario en el sistema.
+     *
+     * <p>
+     *     Solo accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     La contraseña del usuario se encripta antes de ser almacenada en la base de datos.
+     *     Se retorna el usuario creado con estado HTTP 201 (CREATED).
+     * </p>
+     *
+     * @return `ResponseEntity<Usuario>` con el usuario creado y estado HTTP 201 (CREATED).
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
@@ -43,6 +55,14 @@ public class ControladorUsuario {
 
     /**
      * Lista todos los usuarios registrados en el sistema.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     Se retorna una lista de usuarios con estado HTTP 200 (OK).
+     *     Si no hay usuarios registrados, se retorna un estado HTTP 204 (NO CONTENT).
+     * </p>
+     *
+     * @return `ResponseEntity<List<Usuario>>` con la lista de usuarios y estado HTTP 200 (OK).
      */
     @GetMapping
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
@@ -56,6 +76,14 @@ public class ControladorUsuario {
 
     /**
      * Busca un usuario por su ID.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     Se retorna el usuario encontrado con estado HTTP 200 (OK).
+     *     Si no se encuentra el usuario, se retorna un estado HTTP 404 (NOT FOUND).
+     * </p>
+     *
+     * @return `ResponseEntity<Usuario>` con el usuario encontrado y estado HTTP 200 (OK).
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
@@ -67,6 +95,15 @@ public class ControladorUsuario {
 
     /**
      * Busca usuarios por su nombre de usuario.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     Se retorna una lista de usuarios con estado HTTP 200 (OK).
+     *     Si no se encuentran usuarios, se retorna un estado HTTP 204 (NO CONTENT).
+     *     La búsqueda es parcial, por lo que se pueden obtener varios resultados.
+     * </p>
+     *
+     * @return `ResponseEntity<List<Usuario>>` con la lista de usuarios encontrados y estado HTTP 200 (OK).
      */
     @GetMapping("/buscar")
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
@@ -80,6 +117,16 @@ public class ControladorUsuario {
 
     /**
      * Actualiza la información de un usuario.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     Se retorna un estado HTTP 200 (OK) si la actualización fue exitosa.
+     *     Si el ID del usuario no coincide con el ID proporcionado, se retorna un estado HTTP 400 (BAD REQUEST).
+     *     Si no se encuentra el usuario, se retorna un estado HTTP 404 (NOT FOUND).
+     *     La contraseña del usuario se encripta antes de ser almacenada en la base de datos.
+     * </p>
+     *
+     * @return `ResponseEntity<Void>` con estado HTTP 200 (OK) si la actualización fue exitosa.
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
@@ -96,6 +143,14 @@ public class ControladorUsuario {
 
     /**
      * Elimina un usuario por su ID.
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     Se retorna un estado HTTP 204 (NO CONTENT) si la eliminación fue exitosa.
+     *     Si no se encuentra el usuario, se retorna un estado HTTP 404 (NOT FOUND).
+     * </p>
+     *
+     * @return `ResponseEntity<Void>` con estado HTTP 204 (NO CONTENT) si la eliminación fue exitosa.
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
@@ -109,6 +164,14 @@ public class ControladorUsuario {
 
     /**
      * Cambia el estado de un usuario (activo/inactivo).
+     *
+     * <p>
+     *     Accesible para usuarios con el rol "ADMINUSUARIOS".
+     *     Se retorna un estado HTTP 200 (OK) si el cambio de estado fue exitoso.
+     *     Si no se encuentra el usuario, se retorna un estado HTTP 404 (NOT FOUND).
+     * </p>
+     *
+     * @return `ResponseEntity<Void>` con estado HTTP 200 (OK) si el cambio de estado fue exitoso.
      */
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMINUSUARIOS')")
