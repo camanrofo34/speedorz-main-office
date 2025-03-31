@@ -1,6 +1,7 @@
 package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +12,10 @@ import speedorz.crm.domain.entities.Usuario;
 import speedorz.crm.repository.RepositorioUsuario;
 import speedorz.crm.services.ServicioUsuario;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
+import org.springframework.mail.SimpleMailMessage;
 
+import java.util.Date;
+import java.util.Random;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,11 +28,13 @@ import java.util.logging.Logger;
 public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService {
 
     private final RepositorioUsuario repositorioUsuario;
+    private final JavaMailSender mailSender;
     private final Logger logger = Logger.getLogger(ServicioUsuarioImpl.class.getName());
 
     @Autowired
-    public ServicioUsuarioImpl(RepositorioUsuario repositorioUsuario) {
+    public ServicioUsuarioImpl(RepositorioUsuario repositorioUsuario, JavaMailSender mailSender) {
         this.repositorioUsuario = repositorioUsuario;
+        this.mailSender = mailSender;
     }
 
     @Override
@@ -132,4 +138,65 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
                 List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol()))
         );
     }
+    @Override
+    public boolean sendRecoveryCode(String email) {
+        try {
+            Usuario usuario = repositorioUsuario.findUsuarioByNombreUsuario(email);
+            if (usuario == null) {
+                return false; // Usuario no encontrado
+            }
+
+            // Genera un código de recuperación de 6 dígitos
+            String recoveryCode = String.format("%06d", new Random().nextInt(999999));
+            usuario.setRecoveryCode(recoveryCode);
+
+            // Establece la fecha de expiración del código (por ejemplo, 15 minutos a partir de ahora)
+            Date expirationDate = new Date(System.currentTimeMillis() + 15 * 60 * 1000);
+            usuario.setRecoveryCodeExpiration(expirationDate);
+
+            repositorioUsuario.save(usuario);
+
+            // Envía el correo electrónico con el código de recuperación
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Código de recuperación de contraseña");
+            message.setText("Tu código de recuperación es: " + recoveryCode);
+            mailSender.send(message);
+
+            return true; // Operación exitosa
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al enviar el código de recuperación", e);
+            return false; // Error durante la operación
+        }
+    }
+
+    @Override
+    public boolean resetPassword(String email, String recoveryCode, String newPassword) {
+        try {
+            Usuario usuario = repositorioUsuario.findUsuarioByNombreUsuario(email);
+            if (usuario == null || !isRecoveryCodeValid(usuario, recoveryCode)) {
+                return false; // Código de recuperación inválido o usuario no encontrado
+            }
+
+            // Actualiza la contraseña del usuario
+            usuario.setContrasena(newPassword); // Asegúrate de cifrar la contraseña antes de guardarla
+            usuario.setRecoveryCode(null); // Limpia el código de recuperación
+            usuario.setRecoveryCodeExpiration(null); // Limpia la fecha de expiración
+            repositorioUsuario.save(usuario);
+
+            return true; // Operación exitosa
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al restablecer la contraseña", e);
+            return false; // Error durante la operación
+        }
+    }
+
+    private boolean isRecoveryCodeValid(Usuario usuario, String recoveryCode) {
+        return recoveryCode.equals(usuario.getRecoveryCode()) && !isRecoveryCodeExpired(usuario);
+    }
+
+    private boolean isRecoveryCodeExpired(Usuario usuario) {
+        return usuario.getRecoveryCodeExpiration().before(new Date());
+    }
 }
+

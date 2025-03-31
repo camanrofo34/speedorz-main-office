@@ -62,5 +62,10 @@ public interface ServicioUsuario {
      * @param estado Nuevo estado a asignar al usuario.
      */
     void cambiarEstadoUsuario(Long id, String estado);
+
+    boolean sendRecoveryCode(String email);
+
+    boolean resetPassword(String email, String recoveryCode, String newPassword);
+
 }
 
