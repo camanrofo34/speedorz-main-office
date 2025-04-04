@@ -1,11 +1,11 @@
 package speedorz.crm.domain.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Clase que representa una orden de compra.
@@ -42,7 +42,7 @@ public class OrdenCompra {
     private BigDecimal total;
 
     /**
-     * Asesor comercial encargado de plantar la orden de compra
+     * Asesor comercial encargado de plantar la orden de compra.
      */
     @ManyToOne
     @JoinColumn(name = "id_usuario")
@@ -54,4 +54,10 @@ public class OrdenCompra {
     @ManyToOne
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
+
+    /**
+     * Lista de vehículos asociados a la orden de compra.
+     */
+    @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrdenVehiculo> ordenesVehiculo;
 }

@@ -1,7 +1,6 @@
 package speedorz.crm.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +11,6 @@ import speedorz.crm.domain.entities.Usuario;
 import speedorz.crm.repository.RepositorioUsuario;
 import speedorz.crm.services.ServicioUsuario;
 import speedorz.crm.util.NormalizadorBusquedaUtil;
-import org.springframework.mail.SimpleMailMessage;
 
 import java.util.Date;
 import java.util.Random;
@@ -20,21 +18,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Implementación del servicio {@link ServicioUsuario}.
- * Maneja la lógica de negocio para la gestión de usuarios.
- */
 @Service
 public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService {
 
     private final RepositorioUsuario repositorioUsuario;
-    private final JavaMailSender mailSender;
     private final Logger logger = Logger.getLogger(ServicioUsuarioImpl.class.getName());
 
     @Autowired
-    public ServicioUsuarioImpl(RepositorioUsuario repositorioUsuario, JavaMailSender mailSender) {
+    public ServicioUsuarioImpl(RepositorioUsuario repositorioUsuario) {
         this.repositorioUsuario = repositorioUsuario;
-        this.mailSender = mailSender;
     }
 
     @Override
@@ -43,7 +35,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             logger.log(Level.INFO, "Iniciando el usuario");
             return repositorioUsuario.save(usuario);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al crear Usuario");
+            logger.log(Level.SEVERE, "Error al crear Usuario", e);
             throw new RuntimeException(e);
         }
     }
@@ -60,7 +52,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             newUsuario.setRol(usuario.getRol());
             repositorioUsuario.save(usuario);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al actualizar Usuario");
+            logger.log(Level.SEVERE, "Error al actualizar Usuario", e);
             throw new RuntimeException(e);
         }
     }
@@ -71,7 +63,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             logger.log(Level.INFO, "Eliminando el usuario {0}", id);
             repositorioUsuario.deleteById(id);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al eliminar Usuario");
+            logger.log(Level.SEVERE, "Error al eliminar Usuario", e);
             throw new RuntimeException(e);
         }
     }
@@ -82,7 +74,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             logger.log(Level.INFO, "Listando Usuarios");
             return repositorioUsuario.findAll();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al listar Usuarios");
+            logger.log(Level.SEVERE, "Error al listar Usuarios", e);
             throw new RuntimeException(e);
         }
     }
@@ -93,10 +85,9 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             logger.log(Level.INFO, "Buscando Usuario por ID {0}", id);
             return repositorioUsuario.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al buscar Usuario por ID");
+            logger.log(Level.SEVERE, "Error al buscar Usuario por ID", e);
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -106,10 +97,9 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             String nombreUsuarioBusqueda = NormalizadorBusquedaUtil.normalizarTexto(nombreUsuario);
             return repositorioUsuario.findUsuariosByNombreCompletoContainsIgnoreCase(nombreUsuarioBusqueda);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al buscar Usuario por nombre de usuario");
+            logger.log(Level.SEVERE, "Error al buscar Usuario por nombre de usuario", e);
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -120,7 +110,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             usuario.setEstado(estado);
             repositorioUsuario.save(usuario);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al cambiar el estado del Usuario");
+            logger.log(Level.SEVERE, "Error al cambiar el estado del Usuario", e);
             throw new RuntimeException(e);
         }
     }
@@ -138,6 +128,7 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
                 List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol()))
         );
     }
+
     @Override
     public boolean sendRecoveryCode(String email) {
         try {
@@ -150,22 +141,18 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
             String recoveryCode = String.format("%06d", new Random().nextInt(999999));
             usuario.setRecoveryCode(recoveryCode);
 
-            // Establece la fecha de expiración del código (por ejemplo, 15 minutos a partir de ahora)
+            // Establece la fecha de expiración del código (15 minutos desde ahora)
             Date expirationDate = new Date(System.currentTimeMillis() + 15 * 60 * 1000);
             usuario.setRecoveryCodeExpiration(expirationDate);
 
             repositorioUsuario.save(usuario);
 
-            // Envía el correo electrónico con el código de recuperación
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Código de recuperación de contraseña");
-            message.setText("Tu código de recuperación es: " + recoveryCode);
-            mailSender.send(message);
+            // Log para pruebas
+            logger.log(Level.INFO, "Código de recuperación generado para {0}: {1}", new Object[]{email, recoveryCode});
 
             return true; // Operación exitosa
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al enviar el código de recuperación", e);
+            logger.log(Level.SEVERE, "Error al generar el código de recuperación", e);
             return false; // Error durante la operación
         }
     }
@@ -199,4 +186,3 @@ public class ServicioUsuarioImpl implements ServicioUsuario, UserDetailsService 
         return usuario.getRecoveryCodeExpiration().before(new Date());
     }
 }
-

@@ -137,6 +137,17 @@ public class ControladorAutenticacion {
     public ResponseEntity<?> inicioSesionAsesorComercial(@RequestBody LoginRequestDTO loginRequest) {
         return autenticarUsuario(loginRequest, "ROLE_ASESORCOMERCIAL");
     }
+    /**
+    * Autenticación de usuarios con rol **Caja**.
+    *
+    * @param loginRequest Datos de inicio de sesión.
+    * @return `ResponseEntity<?>` con el token JWT si la autenticación es exitosa.
+    */
+    @PostMapping("/login-caja")
+    public ResponseEntity<?> inicioSesionCaja(@RequestBody LoginRequestDTO loginRequest) {
+        return autenticarUsuario(loginRequest, "ROLE_CAJA");
+    }   
+
 }
 
 

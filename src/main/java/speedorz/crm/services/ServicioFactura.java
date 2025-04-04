@@ -1,7 +1,7 @@
 package speedorz.crm.services;
 
 import speedorz.crm.domain.entities.Factura;
-
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -39,4 +39,7 @@ public interface ServicioFactura {
      * @return Lista de facturas disponibles.
      */
     List<Factura> listarFacturas();
+
+    //Generar facturapdf
+    byte[] generarFacturaPDF(Long facturaId) throws IOException;
 }
