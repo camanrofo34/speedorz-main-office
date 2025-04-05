@@ -1,17 +1,14 @@
 package speedorz.crm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import speedorz.crm.domain.dto.request.OrdenCompraDTO;
 import speedorz.crm.domain.entities.OrdenCompra;
+import speedorz.crm.services.ServicioFactura;
 import speedorz.crm.services.ServicioOrdenCompra;
-import speedorz.crm.services.impl.ServicioOrdenCompraImpl;
+import java.io.IOException;
 
 /**
  * Controlador para gestionar órdenes de compra en el sistema CRM.
@@ -28,15 +25,18 @@ import speedorz.crm.services.impl.ServicioOrdenCompraImpl;
 public class ControladorOrdenCompra {
 
     private final ServicioOrdenCompra servicioOrdenCompra;
+    private final ServicioFactura servicioFactura;
 
     /**
-     * Constructor que inyecta el servicio de órdenes de compra.
+     * Constructor que inyecta los servicios de órdenes de compra y facturación.
      *
      * @param servicioOrdenCompra Servicio encargado de la gestión de órdenes de compra.
+     * @param servicioFactura Servicio encargado de la generación de facturas.
      */
     @Autowired
-    public ControladorOrdenCompra(ServicioOrdenCompraImpl servicioOrdenCompra) {
+    public ControladorOrdenCompra(ServicioOrdenCompra servicioOrdenCompra, ServicioFactura servicioFactura) {
         this.servicioOrdenCompra = servicioOrdenCompra;
+        this.servicioFactura = servicioFactura;
     }
 
     /**
@@ -57,5 +57,26 @@ public class ControladorOrdenCompra {
             return new ResponseEntity<>("Error al crear la orden de compra: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-}
 
+    /**
+     * Genera un PDF de la factura asociada a una orden de compra.
+     * 
+     * @param facturaId ID de la factura a generar en PDF.
+     * @return `ResponseEntity<byte[]>` con el contenido del PDF y estado HTTP 200 (OK).
+     */
+    @GetMapping("/{facturaId}/pdf")
+    public ResponseEntity<byte[]> generarFacturaPDF(@PathVariable Long facturaId) {
+        try {
+            byte[] pdfBytes = servicioFactura.generarFacturaPDF(facturaId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.attachment()
+                    .filename("factura_" + facturaId + ".pdf")
+                    .build());
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}
