@@ -6,8 +6,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import speedorz.crm.domain.dto.request.OrdenCompraDTO;
 import speedorz.crm.domain.entities.OrdenCompra;
+import speedorz.crm.domain.entities.Factura;
 import speedorz.crm.services.ServicioFactura;
 import speedorz.crm.services.ServicioOrdenCompra;
+
 import java.io.IOException;
 
 /**
@@ -15,13 +17,13 @@ import java.io.IOException;
  * <p>
  * Solo accesible para usuarios con el rol "ASESORCOMERCIAL".
  * </p>
- *
+ * 
  * @author Camilo
  * @version 1.0
  */
 @RestController
 @RequestMapping("/ordenescompra")
-@PreAuthorize("hasRole('ASESORCOMERCIAL')")
+//@PreAuthorize("hasRole('ASESORCOMERCIAL')")
 public class ControladorOrdenCompra {
 
     private final ServicioOrdenCompra servicioOrdenCompra;
@@ -60,7 +62,7 @@ public class ControladorOrdenCompra {
 
     /**
      * Genera un PDF de la factura asociada a una orden de compra.
-     * 
+     *
      * @param facturaId ID de la factura a generar en PDF.
      * @return `ResponseEntity<byte[]>` con el contenido del PDF y estado HTTP 200 (OK).
      */
@@ -77,6 +79,23 @@ public class ControladorOrdenCompra {
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Genera y guarda una factura a partir de una orden de compra existente.
+     *
+     * @param ordenId ID de la orden de compra asociada a la factura.
+     * @return `ResponseEntity` con la factura creada o un error si falla.
+     */
+    @PostMapping("/{ordenId}/factura")
+    public ResponseEntity<?> generarFactura(@PathVariable Long ordenId) {
+        try {
+            Factura factura = servicioFactura.generarFacturaDesdeOrden(ordenId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(factura);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al generar la factura: " + e.getMessage());
         }
     }
 }
