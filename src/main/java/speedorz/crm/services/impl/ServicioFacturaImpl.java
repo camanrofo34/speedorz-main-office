@@ -31,11 +31,14 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+
 import java.util.stream.Stream;
 import com.itextpdf.text.Element;
 
 import java.util.Set;
 import java.util.Collections;
+import java.io.File;
 
 /**
  * Implementación del servicio {@link ServicioFactura}.
@@ -106,47 +109,66 @@ public class ServicioFacturaImpl implements ServicioFactura {
             PdfWriter.getInstance(document, outputStream);
             document.open();
     
+            // Cargar factura y relaciones
             Factura factura = repositorioFactura.findById(facturaId)
                 .orElseThrow(() -> new IllegalArgumentException("Factura no encontrada"));
     
             OrdenCompra orden = factura.getOrdenCompra();
             Cliente cliente = orden.getCliente();
     
-            // TÍTULO
+            // === LOGO ===
+            String logoPath = "src/main/resources/speedorz_logo.jpg";
+            File logoFile = new File(logoPath);
+            if (logoFile.exists()) {
+                Image logo = Image.getInstance(logoPath);
+                logo.scaleToFit(100, 100);
+                logo.setAlignment(Element.ALIGN_RIGHT);
+                document.add(logo);
+            }
+    
+            // === TÍTULO ===
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
-            document.add(new Paragraph("FACTURA", titleFont));
+            Paragraph title = new Paragraph("FACTURA", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
             document.add(Chunk.NEWLINE);
     
-            // ENCABEZADO
-            document.add(new Paragraph("Factura N°: " + factura.getId()));
-            document.add(new Paragraph("Fecha de Emisión: " + factura.getFechaEmision()));
-            document.add(new Paragraph("Estado de Pago: " + factura.getEstadoPago()));
-            document.add(new Paragraph("Empresa: " + factura.getNombreEmpresa()));
+            // === ENCABEZADO DE FACTURA ===
+            Font normalFont = new Font(Font.FontFamily.HELVETICA, 11);
+            document.add(new Paragraph("Factura N°: " + factura.getId(), normalFont));
+            document.add(new Paragraph("Fecha de Emisión: " + factura.getFechaEmision(), normalFont));
+            document.add(new Paragraph("Estado de Pago: " + factura.getEstadoPago(), normalFont));
+            document.add(new Paragraph("Empresa: " + factura.getNombreEmpresa(), normalFont));
             if (factura.getMetodoPago() != null) {
-                document.add(new Paragraph("Método de Pago: " + factura.getMetodoPago().getNombre()));
+                document.add(new Paragraph("Método de Pago: " + factura.getMetodoPago().getNombre(), normalFont));
             }
             document.add(Chunk.NEWLINE);
     
-            // DATOS DEL CLIENTE
-            Font sectionFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
+            // === DATOS DEL CLIENTE ===
+            Font sectionFont = new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD);
             document.add(new Paragraph("Datos del Cliente", sectionFont));
-            document.add(new Paragraph("Nombre Legal: " + cliente.getNombreLegal()));
-            document.add(new Paragraph("Identificación: " + cliente.getNumeroIdentificacion()));
-            document.add(new Paragraph("Dirección: " + cliente.getDireccion()));
-            document.add(new Paragraph("Teléfono: " + cliente.getTelefono()));
+            document.add(new Paragraph("Nombre Legal: " + cliente.getNombreLegal(), normalFont));
+            document.add(new Paragraph("Identificación: " + cliente.getNumeroIdentificacion(), normalFont));
+            document.add(new Paragraph("Dirección: " + cliente.getDireccion(), normalFont));
+            document.add(new Paragraph("Teléfono: " + cliente.getTelefono(), normalFont));
             document.add(Chunk.NEWLINE);
     
-            // TABLA DETALLE VEHÍCULOS
+            // === TABLA DETALLE VEHÍCULOS ===
             PdfPTable table = new PdfPTable(7);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{2.5f, 1f, 2f, 2f, 2.5f, 2.5f, 2f});
+            table.setWidths(new float[]{2.5f, 1.3f, 2f, 2f, 2.5f, 2.5f, 2f});
     
-            Stream.of("Vehículo", "Cant", "Precio Unit.", "Subtotal", "Descuentos", "Impuestos", "Total")
-                .forEach(header -> {
-                    PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
-                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table.addCell(cell);
-                });
+            Font tableHeaderFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+            Font tableBodyFont = new Font(Font.FontFamily.HELVETICA, 9);
+    
+            String[] headers = {"Vehículo", "CNT", "Precio Unit.", "Subtotal", "Descuentos", "Impuestos", "Total"};
+
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, tableHeaderFont));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(5);
+                table.addCell(cell);
+            }
     
             BigDecimal totalDescuentos = BigDecimal.ZERO;
             BigDecimal totalImpuestos = BigDecimal.ZERO;
@@ -156,32 +178,23 @@ public class ServicioFacturaImpl implements ServicioFactura {
             for (OrdenVehiculo ov : orden.getOrdenesVehiculo()) {
                 BigDecimal subtotal = ov.getSubtotal();
     
-                System.out.println("Procesando OrdenVehiculo ID: " + ov.getIdOrdenVehiculo());
-                System.out.println("Subtotal: " + subtotal);
-                System.out.println("Cantidad: " + ov.getCantidad());
-                System.out.println("Vehículo: " + ov.getVehiculo().getNombre());
-    
                 // === DESCUENTOS ===
                 BigDecimal descuentosItem = BigDecimal.ZERO;
                 StringBuilder descuentosBuilder = new StringBuilder();
-    
                 Set<Descuento> descuentos = ov.getDescuentos();
-                System.out.println("Descuentos encontrados: " + (descuentos != null ? descuentos.size() : "NULO"));
     
                 if (descuentos != null && !descuentos.isEmpty()) {
                     for (Descuento d : descuentos) {
-                        double valorCalculado = d.calcularDescuento(subtotal.doubleValue());
-                        BigDecimal valor = BigDecimal.valueOf(valorCalculado);
+                        BigDecimal valor = BigDecimal.valueOf(d.calcularDescuento(subtotal.doubleValue()));
                         descuentosItem = descuentosItem.add(valor);
                         totalDescuentos = totalDescuentos.add(valor);
+    
                         resumenDescuentos.append("- ").append(d.getNombre())
                             .append(" (").append(d.getPorcentaje()).append("%): -$")
                             .append(valor.toBigInteger()).append("\n");
     
                         if (descuentosBuilder.length() > 0) descuentosBuilder.append(", ");
                         descuentosBuilder.append(d.getNombre()).append(" (").append(d.getPorcentaje()).append("%)");
-    
-                        System.out.println("  -> Descuento aplicado: " + d.getNombre() + " - " + d.getPorcentaje() + "% - Valor: " + valor);
                     }
                 } else {
                     descuentosBuilder.append("Ninguno");
@@ -190,60 +203,75 @@ public class ServicioFacturaImpl implements ServicioFactura {
                 // === IMPUESTOS ===
                 BigDecimal impuestosItem = BigDecimal.ZERO;
                 StringBuilder impuestosBuilder = new StringBuilder();
-    
                 Set<Impuesto> impuestos = ov.getImpuestos();
-                System.out.println("Impuestos encontrados: " + (impuestos != null ? impuestos.size() : "NULO"));
     
                 if (impuestos != null && !impuestos.isEmpty()) {
                     for (Impuesto i : impuestos) {
-                        double valorCalculado = i.calcularImpuesto(subtotal.doubleValue());
-                        BigDecimal valor = BigDecimal.valueOf(valorCalculado);
+                        BigDecimal valor = BigDecimal.valueOf(i.calcularImpuesto(subtotal.doubleValue()));
                         impuestosItem = impuestosItem.add(valor);
                         totalImpuestos = totalImpuestos.add(valor);
+    
                         resumenImpuestos.append("- ").append(i.getNombre())
                             .append(" (").append(i.getPorcentaje()).append("%): +$")
                             .append(valor.toBigInteger()).append("\n");
     
                         if (impuestosBuilder.length() > 0) impuestosBuilder.append(", ");
                         impuestosBuilder.append(i.getNombre()).append(" (").append(i.getPorcentaje()).append("%)");
-    
-                        System.out.println("  -> Impuesto aplicado: " + i.getNombre() + " - " + i.getPorcentaje() + "% - Valor: " + valor);
                     }
                 } else {
                     impuestosBuilder.append("Ninguno");
                 }
     
-                // Fila de la tabla
-                table.addCell(ov.getVehiculo().getNombre());
-                table.addCell(String.valueOf(ov.getCantidad()));
-                table.addCell("$" + ov.getPrecioUnitario());
-                table.addCell("$" + subtotal);
-                table.addCell(descuentosBuilder.toString());
-                table.addCell(impuestosBuilder.toString());
-                table.addCell("$" + ov.getTotal());
+                // === FILA ===
+                table.addCell(new PdfPCell(new Phrase(ov.getVehiculo().getNombre(), tableBodyFont)));
+    
+                PdfPCell cantidadCell = new PdfPCell(new Phrase(String.valueOf(ov.getCantidad()), tableBodyFont));
+                cantidadCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cantidadCell);
+    
+                PdfPCell precioCell = new PdfPCell(new Phrase("$" + ov.getPrecioUnitario(), tableBodyFont));
+                precioCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(precioCell);
+    
+                PdfPCell subtotalCell = new PdfPCell(new Phrase("$" + subtotal, tableBodyFont));
+                subtotalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(subtotalCell);
+    
+                PdfPCell descCell = new PdfPCell(new Phrase(descuentosBuilder.toString(), tableBodyFont));
+                descCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                table.addCell(descCell);
+    
+                PdfPCell impCell = new PdfPCell(new Phrase(impuestosBuilder.toString(), tableBodyFont));
+                impCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                table.addCell(impCell);
+    
+                PdfPCell totalCell = new PdfPCell(new Phrase("$" + ov.getTotal(), tableBodyFont));
+                totalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(totalCell);
             }
     
             document.add(table);
             document.add(Chunk.NEWLINE);
     
-            // TOTALES
-            document.add(new Paragraph("Resumen Final", sectionFont));
-            document.add(new Paragraph("Subtotal general: $" + orden.getSubtotal()));
-            document.add(new Paragraph("Total descuentos: -$" + totalDescuentos.toBigInteger()));
-            document.add(new Paragraph("Total impuestos: +$" + totalImpuestos.toBigInteger()));
-            document.add(new Paragraph("TOTAL FINAL: $" + orden.getTotal()));
-            document.add(Chunk.NEWLINE);
-    
-            // DETALLES DE DESCUENTOS E IMPUESTOS
+            // === DETALLES DE DESCUENTOS E IMPUESTOS ===
             if (resumenDescuentos.length() > 0) {
                 document.add(new Paragraph("Descuentos aplicados:", sectionFont));
-                document.add(new Paragraph(resumenDescuentos.toString()));
+                document.add(new Paragraph(resumenDescuentos.toString(), normalFont));
             }
     
             if (resumenImpuestos.length() > 0) {
                 document.add(new Paragraph("Impuestos aplicados:", sectionFont));
-                document.add(new Paragraph(resumenImpuestos.toString()));
+                document.add(new Paragraph(resumenImpuestos.toString(), normalFont));
             }
+    
+            document.add(Chunk.NEWLINE);
+    
+            // === RESUMEN FINAL ===
+            document.add(new Paragraph("Resumen Final", sectionFont));
+            document.add(new Paragraph("Subtotal general: $" + orden.getSubtotal(), normalFont));
+            document.add(new Paragraph("Total descuentos: -$" + totalDescuentos.toBigInteger(), normalFont));
+            document.add(new Paragraph("Total impuestos: +$" + totalImpuestos.toBigInteger(), normalFont));
+            document.add(new Paragraph("TOTAL FINAL: $" + orden.getTotal(), normalFont));
     
             document.close();
         } catch (DocumentException e) {
@@ -252,6 +280,8 @@ public class ServicioFacturaImpl implements ServicioFactura {
     
         return outputStream.toByteArray();
     }
+    
+
     
 
 
