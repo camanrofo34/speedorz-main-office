@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping("/ordenescompra")
-//@PreAuthorize("hasRole('ASESORCOMERCIAL')")
+@PreAuthorize("hasRole('ASESORCOMERCIAL')")
 public class ControladorOrdenCompra {
 
     private final ServicioOrdenCompra servicioOrdenCompra;
