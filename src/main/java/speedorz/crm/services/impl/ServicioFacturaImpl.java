@@ -34,6 +34,8 @@ import com.itextpdf.text.FontFactory;
 import java.util.stream.Stream;
 import com.itextpdf.text.Element;
 
+import java.util.Set;
+import java.util.Collections;
 
 /**
  * Implementación del servicio {@link ServicioFactura}.
@@ -139,7 +141,6 @@ public class ServicioFacturaImpl implements ServicioFactura {
             table.setWidthPercentage(100);
             table.setWidths(new float[]{2.5f, 1f, 2f, 2f, 2.5f, 2.5f, 2f});
     
-            // Cabeceras
             Stream.of("Vehículo", "Cant", "Precio Unit.", "Subtotal", "Descuentos", "Impuestos", "Total")
                 .forEach(header -> {
                     PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
@@ -155,43 +156,64 @@ public class ServicioFacturaImpl implements ServicioFactura {
             for (OrdenVehiculo ov : orden.getOrdenesVehiculo()) {
                 BigDecimal subtotal = ov.getSubtotal();
     
-                // Descuentos
+                System.out.println("Procesando OrdenVehiculo ID: " + ov.getIdOrdenVehiculo());
+                System.out.println("Subtotal: " + subtotal);
+                System.out.println("Cantidad: " + ov.getCantidad());
+                System.out.println("Vehículo: " + ov.getVehiculo().getNombre());
+    
+                // === DESCUENTOS ===
                 BigDecimal descuentosItem = BigDecimal.ZERO;
                 StringBuilder descuentosBuilder = new StringBuilder();
-                for (Descuento d : ov.getDescuentos()) {
-                    BigDecimal valor = BigDecimal.valueOf(d.calcularDescuento(subtotal.doubleValue()));
-                    descuentosItem = descuentosItem.add(valor);
-                    totalDescuentos = totalDescuentos.add(valor);
-                    resumenDescuentos.append("- ")
-                        .append(d.getNombre())
-                        .append(" (").append(d.getPorcentaje()).append("%): -$")
-                        .append(valor.toBigInteger()).append("\n");
-                    if (descuentosBuilder.length() > 0) descuentosBuilder.append(", ");
-                    descuentosBuilder.append(d.getNombre()).append(" (").append(d.getPorcentaje()).append("%)");
-                }
-                if (descuentosBuilder.length() == 0) {
+    
+                Set<Descuento> descuentos = ov.getDescuentos();
+                System.out.println("Descuentos encontrados: " + (descuentos != null ? descuentos.size() : "NULO"));
+    
+                if (descuentos != null && !descuentos.isEmpty()) {
+                    for (Descuento d : descuentos) {
+                        double valorCalculado = d.calcularDescuento(subtotal.doubleValue());
+                        BigDecimal valor = BigDecimal.valueOf(valorCalculado);
+                        descuentosItem = descuentosItem.add(valor);
+                        totalDescuentos = totalDescuentos.add(valor);
+                        resumenDescuentos.append("- ").append(d.getNombre())
+                            .append(" (").append(d.getPorcentaje()).append("%): -$")
+                            .append(valor.toBigInteger()).append("\n");
+    
+                        if (descuentosBuilder.length() > 0) descuentosBuilder.append(", ");
+                        descuentosBuilder.append(d.getNombre()).append(" (").append(d.getPorcentaje()).append("%)");
+    
+                        System.out.println("  -> Descuento aplicado: " + d.getNombre() + " - " + d.getPorcentaje() + "% - Valor: " + valor);
+                    }
+                } else {
                     descuentosBuilder.append("Ninguno");
                 }
     
-                // Impuestos
+                // === IMPUESTOS ===
                 BigDecimal impuestosItem = BigDecimal.ZERO;
                 StringBuilder impuestosBuilder = new StringBuilder();
-                for (Impuesto i : ov.getImpuestos()) {
-                    BigDecimal valor = BigDecimal.valueOf(i.calcularImpuesto(subtotal.doubleValue()));
-                    impuestosItem = impuestosItem.add(valor);
-                    totalImpuestos = totalImpuestos.add(valor);
-                    resumenImpuestos.append("- ")
-                        .append(i.getNombre())
-                        .append(" (").append(i.getPorcentaje()).append("%): +$")
-                        .append(valor.toBigInteger()).append("\n");
-                    if (impuestosBuilder.length() > 0) impuestosBuilder.append(", ");
-                    impuestosBuilder.append(i.getNombre()).append(" (").append(i.getPorcentaje()).append("%)");
-                }
-                if (impuestosBuilder.length() == 0) {
+    
+                Set<Impuesto> impuestos = ov.getImpuestos();
+                System.out.println("Impuestos encontrados: " + (impuestos != null ? impuestos.size() : "NULO"));
+    
+                if (impuestos != null && !impuestos.isEmpty()) {
+                    for (Impuesto i : impuestos) {
+                        double valorCalculado = i.calcularImpuesto(subtotal.doubleValue());
+                        BigDecimal valor = BigDecimal.valueOf(valorCalculado);
+                        impuestosItem = impuestosItem.add(valor);
+                        totalImpuestos = totalImpuestos.add(valor);
+                        resumenImpuestos.append("- ").append(i.getNombre())
+                            .append(" (").append(i.getPorcentaje()).append("%): +$")
+                            .append(valor.toBigInteger()).append("\n");
+    
+                        if (impuestosBuilder.length() > 0) impuestosBuilder.append(", ");
+                        impuestosBuilder.append(i.getNombre()).append(" (").append(i.getPorcentaje()).append("%)");
+    
+                        System.out.println("  -> Impuesto aplicado: " + i.getNombre() + " - " + i.getPorcentaje() + "% - Valor: " + valor);
+                    }
+                } else {
                     impuestosBuilder.append("Ninguno");
                 }
     
-                // Fila
+                // Fila de la tabla
                 table.addCell(ov.getVehiculo().getNombre());
                 table.addCell(String.valueOf(ov.getCantidad()));
                 table.addCell("$" + ov.getPrecioUnitario());
@@ -217,6 +239,7 @@ public class ServicioFacturaImpl implements ServicioFactura {
                 document.add(new Paragraph("Descuentos aplicados:", sectionFont));
                 document.add(new Paragraph(resumenDescuentos.toString()));
             }
+    
             if (resumenImpuestos.length() > 0) {
                 document.add(new Paragraph("Impuestos aplicados:", sectionFont));
                 document.add(new Paragraph(resumenImpuestos.toString()));
