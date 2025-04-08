@@ -42,4 +42,6 @@ public interface ServicioFactura {
 
     //Generar facturapdf
     byte[] generarFacturaPDF(Long facturaId) throws IOException;
+    Factura generarFacturaDesdeOrden(Long ordenId);
+
 }

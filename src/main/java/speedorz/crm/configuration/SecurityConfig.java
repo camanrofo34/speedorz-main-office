@@ -42,7 +42,8 @@ public class SecurityConfig {
                     "/autenticacion/**",
                     "/vehiculos-promocion/**",
                     "/reportes/**", // ✅ ya permites todos los reportes (incluye factura PDF)
-                    "/reportes/factura/**" // ✅ por si quieres especificarlo
+                    "/reportes/factura/**" ,
+                    "/ordenescompra/**"// ✅ por si quieres especificarlo
                     
                 ).permitAll()
                 .anyRequest().authenticated()
