@@ -1,6 +1,7 @@
 package speedorz.crm.services;
 
 import speedorz.crm.domain.dto.request.OrdenCompraDTO;
+import speedorz.crm.domain.dto.response.OrdenCompraResponse;
 import speedorz.crm.domain.entities.OrdenCompra;
 
 import java.util.List;
@@ -39,6 +40,6 @@ public interface ServicioOrdenCompra {
      *
      * @return Lista de órdenes de compra disponibles.
      */
-    List<OrdenCompra> listarOrdenCompras();
+    List<OrdenCompraResponse> listarOrdenCompras();
 }
 

@@ -60,42 +60,35 @@ public class ControladorOrdenCompra {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<?> listarOrdenesCompra() {
+        try {
+            return new ResponseEntity<>(servicioOrdenCompra.listarOrdenCompras(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al listar las órdenes de compra: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     /**
      * Genera un PDF de la factura asociada a una orden de compra.
      *
-     * @param facturaId ID de la factura a generar en PDF.
+     * @param ordenCompraId ID de la factura a generar en PDF.
      * @return `ResponseEntity<byte[]>` con el contenido del PDF y estado HTTP 200 (OK).
      */
-    @GetMapping("/{facturaId}/pdf")
-    public ResponseEntity<byte[]> generarFacturaPDF(@PathVariable Long facturaId) {
+    @GetMapping("/{ordenCompraId}/pdf")
+    public ResponseEntity<byte[]> generarFacturaPDF(@PathVariable Long ordenCompraId) {
+
         try {
-            byte[] pdfBytes = servicioFactura.generarFacturaPDF(facturaId);
+            byte[] pdfBytes = servicioFactura.generarFacturaPDF(ordenCompraId);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDisposition(ContentDisposition.attachment()
-                    .filename("factura_" + facturaId + ".pdf")
+                    .filename("ordenCompraFacturada_" + ordenCompraId + ".pdf")
                     .build());
 
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Genera y guarda una factura a partir de una orden de compra existente.
-     *
-     * @param ordenId ID de la orden de compra asociada a la factura.
-     * @return `ResponseEntity` con la factura creada o un error si falla.
-     */
-    @PostMapping("/{ordenId}/factura")
-    public ResponseEntity<?> generarFactura(@PathVariable Long ordenId) {
-        try {
-            Factura factura = servicioFactura.generarFacturaDesdeOrden(ordenId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(factura);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al generar la factura: " + e.getMessage());
         }
     }
 }

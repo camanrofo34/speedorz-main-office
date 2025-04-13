@@ -10,15 +10,12 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import speedorz.crm.domain.entities.Cliente;
-import speedorz.crm.domain.entities.Descuento;
-import speedorz.crm.domain.entities.Factura;
-import speedorz.crm.domain.entities.Impuesto;
-import speedorz.crm.domain.entities.OrdenCompra;
-import speedorz.crm.domain.entities.OrdenVehiculo;
+import speedorz.crm.domain.entities.*;
 import speedorz.crm.repository.RepositorioFactura;
+import speedorz.crm.repository.RepositorioOrdenCompra;
 import speedorz.crm.services.ServicioFactura;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,11 +45,13 @@ import java.io.File;
 public class ServicioFacturaImpl implements ServicioFactura {
 
     private final RepositorioFactura repositorioFactura;
+    private final RepositorioOrdenCompra repositorioOrdenCompra;
     private final Logger logger = Logger.getLogger(ServicioFacturaImpl.class.getName());
 
     @Autowired
-    public ServicioFacturaImpl(RepositorioFactura repositorioFactura) {
+    public ServicioFacturaImpl(RepositorioFactura repositorioFactura, RepositorioOrdenCompra repositorioOrdenCompra) {
         this.repositorioFactura = repositorioFactura;
+        this.repositorioOrdenCompra = repositorioOrdenCompra;
     }
 
     @Override
@@ -101,18 +100,26 @@ public class ServicioFacturaImpl implements ServicioFactura {
     }
 
     @Override
-    public byte[] generarFacturaPDF(Long facturaId) throws IOException {
+    public byte[] generarFacturaPDF(Long ordenCompraId) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
-    
+
+        OrdenCompra ordenCompra = repositorioOrdenCompra.findById(ordenCompraId)
+            .orElseThrow(() -> new IllegalArgumentException("Orden de compra no encontrada"));
+
+        Factura newFactura = new Factura();
+        newFactura.setOrdenCompra(ordenCompra);
+        newFactura.setFechaEmision(LocalDate.now());
+        newFactura.setEstadoPago("PAGO");
+        newFactura.setNombreEmpresa("Speedorz");
+        newFactura = repositorioFactura.save(newFactura);
+
         try {
             PdfWriter.getInstance(document, outputStream);
             document.open();
-    
-            // Cargar factura y relaciones
-            Factura factura = repositorioFactura.findById(facturaId)
-                .orElseThrow(() -> new IllegalArgumentException("Factura no encontrada"));
-    
+            Factura factura = repositorioFactura.findById(newFactura.getId())
+                .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+
             OrdenCompra orden = factura.getOrdenCompra();
             Cliente cliente = orden.getCliente();
     
@@ -139,9 +146,6 @@ public class ServicioFacturaImpl implements ServicioFactura {
             document.add(new Paragraph("Fecha de Emisión: " + factura.getFechaEmision(), normalFont));
             document.add(new Paragraph("Estado de Pago: " + factura.getEstadoPago(), normalFont));
             document.add(new Paragraph("Empresa: " + factura.getNombreEmpresa(), normalFont));
-            if (factura.getMetodoPago() != null) {
-                document.add(new Paragraph("Método de Pago: " + factura.getMetodoPago().getNombre(), normalFont));
-            }
             document.add(Chunk.NEWLINE);
     
             // === DATOS DEL CLIENTE ===
@@ -193,7 +197,7 @@ public class ServicioFacturaImpl implements ServicioFactura {
                             .append(" (").append(d.getPorcentaje()).append("%): -$")
                             .append(valor.toBigInteger()).append("\n");
     
-                        if (descuentosBuilder.length() > 0) descuentosBuilder.append(", ");
+                        if (!descuentosBuilder.isEmpty()) descuentosBuilder.append(", ");
                         descuentosBuilder.append(d.getNombre()).append(" (").append(d.getPorcentaje()).append("%)");
                     }
                 } else {
@@ -215,7 +219,7 @@ public class ServicioFacturaImpl implements ServicioFactura {
                             .append(" (").append(i.getPorcentaje()).append("%): +$")
                             .append(valor.toBigInteger()).append("\n");
     
-                        if (impuestosBuilder.length() > 0) impuestosBuilder.append(", ");
+                        if (!impuestosBuilder.isEmpty()) impuestosBuilder.append(", ");
                         impuestosBuilder.append(i.getNombre()).append(" (").append(i.getPorcentaje()).append("%)");
                     }
                 } else {
@@ -254,12 +258,12 @@ public class ServicioFacturaImpl implements ServicioFactura {
             document.add(Chunk.NEWLINE);
     
             // === DETALLES DE DESCUENTOS E IMPUESTOS ===
-            if (resumenDescuentos.length() > 0) {
+            if (!resumenDescuentos.isEmpty()) {
                 document.add(new Paragraph("Descuentos aplicados:", sectionFont));
                 document.add(new Paragraph(resumenDescuentos.toString(), normalFont));
             }
     
-            if (resumenImpuestos.length() > 0) {
+            if (!resumenImpuestos.isEmpty()) {
                 document.add(new Paragraph("Impuestos aplicados:", sectionFont));
                 document.add(new Paragraph(resumenImpuestos.toString(), normalFont));
             }
@@ -280,13 +284,7 @@ public class ServicioFacturaImpl implements ServicioFactura {
     
         return outputStream.toByteArray();
     }
-    
 
-    
-
-
-@Autowired
-private speedorz.crm.repository.RepositorioOrdenCompra repositorioOrdenCompra;
 
 @Override
 public Factura generarFacturaDesdeOrden(Long ordenId) {

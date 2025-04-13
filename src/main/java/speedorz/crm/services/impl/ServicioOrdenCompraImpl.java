@@ -3,6 +3,7 @@ package speedorz.crm.services.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import speedorz.crm.domain.dto.request.OrdenCompraDTO;
+import speedorz.crm.domain.dto.response.OrdenCompraResponse;
 import speedorz.crm.domain.entities.*;
 import speedorz.crm.repository.*;
 import speedorz.crm.services.ServicioOrdenCompra;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Implementación del servicio {@link ServicioOrdenCompra}.
@@ -108,6 +110,14 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                         .mapToDouble(descuento -> descuento.calcularDescuento(finalSubtotalVehiculo))
                         .sum();
 
+                ordenVehiculo.setDescuentos(
+                        v.getIdDescuentos().stream()
+                                .map(repositorioDescuento::findById)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .collect(Collectors.toSet())
+                );
+
                 subtotalVehiculo -= descuentoTotalVehiculo;
                 totalDescuentos[0] += descuentoTotalVehiculo;
 
@@ -120,6 +130,14 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
                         .sum();
                 subtotalVehiculo += impuestoTotalVehiculo;
                 totalImpuestos[0] += impuestoTotalVehiculo;
+
+                ordenVehiculo.setImpuestos(
+                        v.getIdImpuestos().stream()
+                                .map(repositorioImpuesto::findById)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .collect(Collectors.toSet())
+                );
 
                 // Calcular y aplicar total final
                 ordenVehiculo.setTotal(BigDecimal.valueOf(subtotalVehiculo));
@@ -169,10 +187,18 @@ public class ServicioOrdenCompraImpl implements ServicioOrdenCompra {
     }
 
     @Override
-    public List<OrdenCompra> listarOrdenCompras() {
+    public List<OrdenCompraResponse> listarOrdenCompras() {
         try {
             logger.log(Level.INFO, "Listando Ordenes de Compra");
-            return repositorioOrdenCompra.findAll();
+            List<OrdenCompra> ordenesCompra = repositorioOrdenCompra.findAll();
+            return ordenesCompra.stream().map(ordenCompra -> {
+                OrdenCompraResponse ordenCompraResponse = new OrdenCompraResponse();
+                ordenCompraResponse.setIdOrdenCompra(ordenCompra.getIdOrdenCompra());
+                ordenCompraResponse.setNombreCliente(ordenCompra.getCliente().getNombreLegal());
+                ordenCompraResponse.setFecha(ordenCompra.getFecha());
+                ordenCompraResponse.setTotal(ordenCompra.getTotal());
+                return ordenCompraResponse;
+            }).toList();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error al listar Ordenes de Compra", e);
             throw new RuntimeException(e);

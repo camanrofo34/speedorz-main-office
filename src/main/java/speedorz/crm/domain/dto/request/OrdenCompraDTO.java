@@ -19,6 +19,11 @@ import java.util.List;
 public class OrdenCompraDTO {
 
     /**
+     * ID de la orden de compra (autogenerado).
+     */
+    private Long idOrdenCompra;
+
+    /**
      * Fecha y hora en que se genera la orden de compra.
      */
     private LocalDateTime fecha;

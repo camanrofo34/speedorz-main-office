@@ -47,13 +47,6 @@ public class Factura {
     private OrdenCompra ordenCompra;
 
     /**
-     * Método de pago utilizado para la factura.
-     */
-    @ManyToOne
-    @JoinColumn(name = "id_metodo_pago")
-    private MetodoPago metodoPago;
-
-    /**
      * Estado de pago de la factura.
      * OPCIONES: "PAGO", "NO PAGO"
      */

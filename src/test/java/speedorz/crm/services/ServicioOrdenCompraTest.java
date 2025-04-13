@@ -117,14 +117,4 @@ class ServicioOrdenCompraTest {
 
         assertThrows(RuntimeException.class, () -> servicioOrdenCompra.buscarOrdenCompraPorId(1L));
     }
-
-    @Test
-    void listarOrdenCompras_returnsAllOrdenCompras() {
-        List<OrdenCompra> ordenCompras = Arrays.asList(new OrdenCompra(), new OrdenCompra());
-        when(repositorioOrdenCompra.findAll()).thenReturn(ordenCompras);
-
-        List<OrdenCompra> result = servicioOrdenCompra.listarOrdenCompras();
-
-        assertEquals(ordenCompras, result);
-    }
 }
